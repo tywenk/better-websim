@@ -59,7 +59,7 @@ export const gameIterationRelations = relations(
   })
 );
 
-export type User = typeof userTable.$inferSelect;
+export type User = Omit<typeof userTable.$inferSelect, "password_hash">;
 export type CreateUser = typeof userTable.$inferInsert;
 export type Game = typeof gameTable.$inferSelect;
 export type CreateGame = typeof gameTable.$inferInsert;

@@ -44,7 +44,7 @@ export async function action({ context, request }: Route.ActionArgs) {
       request,
       userId: user.id.toString(),
       remember: true,
-      redirectUrl: "/",
+      redirectUrl: "/home",
     });
 
     if (!response) {
