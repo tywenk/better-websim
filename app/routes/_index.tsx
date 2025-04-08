@@ -2,6 +2,7 @@ import { Form, Link } from "react-router";
 import { getUserById } from "~/crud/user.server";
 import { useEventStream } from "~/lib/eventstream";
 import { getUserId } from "~/lib/session.server";
+import { friendsSchema } from "~/routes/sse";
 import type { Route } from "./+types/_index";
 
 export function meta({}: Route.MetaArgs) {
@@ -23,13 +24,15 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 
 export default function Home({ loaderData }: Route.ComponentProps) {
   const test = useEventStream("/sse", {
+    deserialize: (raw) => friendsSchema.parse(JSON.parse(raw)),
     channel: "friends",
-    maxEventRetention: 0,
+    returnLatestOnly: true,
   });
 
   return (
     <div>
-      <p>{test}</p>
+      <p>Online: {test?.online}</p>
+      <p>Offline: {test?.offline}</p>
       {loaderData && <p>You are logged in as {loaderData.name}</p>}
       {loaderData == null && <Link to="/login">Login</Link>}
       {loaderData && (
