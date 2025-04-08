@@ -23,8 +23,6 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 export default function Home({ loaderData }: Route.ComponentProps) {
   return (
     <div>
-      <h1>Arena Shop</h1>
-      <p>Welcome to the Arena Shop</p>
       {loaderData && <p>You are logged in as {loaderData.name}</p>}
       {loaderData == null && <Link to="/login">Login</Link>}
       {loaderData && (
