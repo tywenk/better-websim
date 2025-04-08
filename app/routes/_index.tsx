@@ -9,6 +9,7 @@ export function meta({}: Route.MetaArgs) {
     { name: "description", content: "Welcome to Better Websim" },
   ];
 }
+
 export async function loader({ context, request }: Route.LoaderArgs) {
   const userId = await getUserId(request);
   if (!userId) return null;
@@ -34,3 +35,5 @@ export default function Home({ loaderData }: Route.ComponentProps) {
     </div>
   );
 }
+
+export { DefaultErrorBoundary as ErrorBoundary } from "~/components/default-error-boundary";
