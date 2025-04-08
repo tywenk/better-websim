@@ -10,6 +10,6 @@ VALUE_FROM_CLOUDFLARE = "Hello from Cloudflare"
 
 [[d1_databases]]
 binding = "DB"
-database_name = "your-database-name"
-database_id = "your-database-id"
+database_name = "better-websim-db"
+database_id = "a5c1bdc8-33c2-45eb-af7e-7efb0636df2c"
 migrations_dir = "drizzle"
