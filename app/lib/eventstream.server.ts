@@ -42,6 +42,8 @@ export class EventStream extends Response {
 
     const headers = new Headers();
     headers.append("Content-Type", "text/event-stream");
+    headers.append("Connection", "keep-alive");
+    headers.append("Cache-Control", "no-cache");
     super(stream, { headers });
   }
 }
