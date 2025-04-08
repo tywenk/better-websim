@@ -1,6 +1,6 @@
 import { Form, Link } from "react-router";
-import { useEventSource } from "remix-utils/sse/react";
 import { getUserById } from "~/crud/user.server";
+import { useEventStream } from "~/lib/eventstream";
 import { getUserId } from "~/lib/session.server";
 import type { Route } from "./+types/_index";
 
@@ -22,11 +22,14 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
-  let time = useEventSource("/sse/friends", { event: "time" });
+  const test = useEventStream("/sse", {
+    channel: "friends",
+    maxEventRetention: 0,
+  });
 
   return (
     <div>
-      <p>{time}</p>
+      <p>{test}</p>
       {loaderData && <p>You are logged in as {loaderData.name}</p>}
       {loaderData == null && <Link to="/login">Login</Link>}
       {loaderData && (

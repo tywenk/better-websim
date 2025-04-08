@@ -1,7 +1,7 @@
-import { drizzle, type DrizzleD1Database } from "drizzle-orm/d1";
-import * as schema from "./database/schema";
 import type { ExecutionContext } from "@cloudflare/workers-types";
+import { drizzle, type DrizzleD1Database } from "drizzle-orm/d1";
 import type { AppLoadContext } from "react-router";
+import * as schema from "./database/schema";
 
 declare global {
   interface CloudflareEnvironment extends Env {}
