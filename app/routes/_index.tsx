@@ -1,5 +1,4 @@
 import { formatDistanceToNow } from "date-fns";
-import { XIcon } from "lucide-react";
 import {
   Link,
   useLoaderData,
@@ -7,8 +6,8 @@ import {
   useSearchParams,
 } from "react-router";
 import { AppSidebar } from "~/components/app-sidebar";
+import { SearchForm } from "~/components/search-form";
 import { SidebarLayout } from "~/components/sidebar-layout";
-import { Button } from "~/components/ui/button";
 import {
   Card,
   CardContent,
@@ -138,11 +137,6 @@ export default function Home() {
   const [searchParams, setSearchParams] = useSearchParams();
   const isSearching = navigation.state === "loading" && searchParams.has("q");
 
-  const clearSearch = () => {
-    searchParams.delete("q");
-    setSearchParams(searchParams);
-  };
-
   const LoadingState = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {Array(6)
@@ -173,44 +167,45 @@ export default function Home() {
       />
       <SidebarInset>
         <div className="p-4 space-y-6">
-          <div className="flex items-center gap-4">
-            {searchParams.has("q") && (
-              <Button variant="ghost" size="icon" onClick={clearSearch}>
-                <XIcon className="h-4 w-4" />
-                <span className="sr-only">Clear search</span>
-              </Button>
-            )}
-          </div>
+          <h2 className="text-sm font-medium text-muted-foreground">
+            Recently played by friends
+          </h2>
 
           {user && friendVisits.length > 0 && (
-            <div className="space-y-2">
-              <h2 className="text-sm font-medium text-muted-foreground">
-                Recently played by friends
-              </h2>
-              <div className="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4">
-                {friendVisits.map((visit) => (
-                  <Link
-                    key={visit.id}
-                    to={`/game/${visit.game.id}`}
-                    className="flex-none w-64 no-underline"
-                  >
-                    <Card className="hover:shadow-md transition-all duration-200 ease-in-out hover:border-primary/50 hover:bg-accent/50 cursor-pointer">
-                      <CardHeader className="space-y-1">
-                        <CardTitle className="text-base">
-                          {visit.game.name}
-                        </CardTitle>
-                        <CardDescription className="text-sm">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 mb-10">
+              {friendVisits.map((visit) => (
+                <Link
+                  key={visit.game.id}
+                  to={`/game/${visit.game.id}`}
+                  className="no-underline"
+                >
+                  <Card className="hover:shadow-md transition-all duration-200 ease-in-out hover:border-primary/50 hover:bg-accent/50 cursor-pointer">
+                    <CardHeader>
+                      <CardTitle>
+                        <HighlightText
+                          text={visit.game.name}
+                          searchTerm={search}
+                        />
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-1">
+                        <p className="text-sm text-muted-foreground">
                           Played by {visit.user.name}{" "}
                           {formatDistanceToNow(new Date(visit.visited_at))} ago
-                        </CardDescription>
-                      </CardHeader>
-                    </Card>
-                  </Link>
-                ))}
-              </div>
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
             </div>
           )}
 
+          <h2 className="text-sm font-medium text-muted-foreground">
+            Explore all games
+          </h2>
+          <SearchForm className="" />
           {isSearching ? (
             <LoadingState />
           ) : allGames?.length === 0 ? (

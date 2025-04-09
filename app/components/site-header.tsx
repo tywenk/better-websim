@@ -2,7 +2,6 @@ import { SidebarIcon } from "lucide-react";
 import { href, Link } from "react-router";
 import { ModeToggle } from "~/components/mode-toggle";
 
-import { SearchForm } from "~/components/search-form";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -48,7 +47,6 @@ export function SiteHeader({ user }: { user?: User }) {
             </Link>
           )}
         </div>
-        <SearchForm className="w-full sm:w-auto" />
         <ModeToggle />
       </div>
     </header>

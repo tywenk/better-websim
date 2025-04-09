@@ -15,16 +15,16 @@ export function SearchForm({
 
   useEffect(() => {
     const timeout = setTimeout(() => {
+      const newSearch = new URLSearchParams(search);
       if (debouncedSearch) {
-        setSearch({ q: debouncedSearch }, { replace: true });
+        newSearch.set("q", debouncedSearch);
       } else {
-        // Remove the query parameter if search is empty
-        search.delete("q");
-        setSearch(search, { replace: true });
+        newSearch.delete("q");
       }
+      setSearch(newSearch, { replace: true });
     }, 300);
     return () => clearTimeout(timeout);
-  }, [debouncedSearch]);
+  }, [debouncedSearch, search]);
 
   return (
     <div className={cn("relative", className)} {...props}>

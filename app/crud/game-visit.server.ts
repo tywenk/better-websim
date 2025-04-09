@@ -73,7 +73,7 @@ export async function getGameVisitsByGameId(
 export async function getFriendsRecentGameVisits(
   db: AppLoadContext["db"],
   userId: number,
-  { limit = 5 }: { limit?: number } = {}
+  { limit = 4 }: { limit?: number } = {}
 ) {
   // First get all friend IDs
   const friendships = await db
