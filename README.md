@@ -1,18 +1,18 @@
-# Welcome to React Router!
+"Better Websim"
 
-A modern, production-ready template for building full-stack React applications using React Router.
+Recreation of websim from scratch.
 
-## Features
+Dashboard view. See friends latest plays and explore and search for existing games:
+![Screenshot 2025-04-09 at 3 36 50 PM](https://github.com/user-attachments/assets/e56c3507-6977-45ea-8328-8db2c93c2e52)
 
-- 🚀 Server-side rendering
-- ⚡️ Hot Module Replacement (HMR)
-- 📦 Asset bundling and optimization
-- 🔄 Data loading and mutations
-- 🔒 TypeScript by default
-- 🎉 TailwindCSS for styling
-- 📖 [React Router docs](https://reactrouter.com/)
+Generate games with natural language:
+![Screenshot 2025-04-09 at 3 37 40 PM](https://github.com/user-attachments/assets/562b5887-ffc8-4111-9a0c-0edb050050ea)
 
-## Getting Started
+See friend's (mostly) realtime online status.
+![Screenshot 2025-04-09 at 3 38 03 PM](https://github.com/user-attachments/assets/28a4c9aa-517c-4f55-b246-f64051ab0d44)
+
+
+## Getting Started With Development
 
 ### Installation
 
