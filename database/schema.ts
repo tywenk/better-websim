@@ -53,6 +53,7 @@ export const gameIterationTable = sqliteTable("game_iteration", {
     .notNull()
     .default(sql`(CURRENT_TIMESTAMP)`)
     .$onUpdate(() => sql`(CURRENT_TIMESTAMP)`),
+  prompt: text().notNull().default(""),
   content: text().notNull(),
 });
 

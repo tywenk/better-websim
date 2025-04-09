@@ -1,0 +1,1 @@
+ALTER TABLE `game_iteration` ADD `prompt` text DEFAULT '' NOT NULL;
