@@ -1,6 +1,14 @@
-import { useLoaderData } from "react-router";
+import { formatDistanceToNow } from "date-fns";
+import { Link, useLoaderData } from "react-router";
 import { AppSidebar } from "~/components/app-sidebar";
 import { SidebarLayout } from "~/components/sidebar-layout";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
 import { SidebarInset } from "~/components/ui/sidebar";
 import { getGames, getGamesByUserId } from "~/crud/game.server";
 import { useUser } from "~/hooks/loaders";
@@ -30,9 +38,28 @@ export default function Home() {
     <SidebarLayout>
       {user ? <AppSidebar games={games ?? []} /> : null}
       <SidebarInset className="p-4">
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {allGames?.map((game) => (
-            <div key={game.id}>{game.name}</div>
+            <Link
+              key={game.id}
+              to={`/game/${game.id}`}
+              className="no-underline"
+            >
+              <Card className="hover:shadow-md transition-all duration-200 ease-in-out hover:border-primary/50 hover:bg-accent/50 cursor-pointer">
+                <CardHeader>
+                  <CardTitle>{game.name}</CardTitle>
+                  <CardDescription>
+                    Last updated{" "}
+                    {formatDistanceToNow(new Date(game.updated_at))} ago
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    Created {formatDistanceToNow(new Date(game.created_at))} ago
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
       </SidebarInset>
