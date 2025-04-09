@@ -1,6 +1,6 @@
 import { and, eq } from "drizzle-orm";
 import type { AppLoadContext } from "react-router";
-import { commentTable, type CreateComment } from "~/database/schema";
+import { commentTable, userTable, type CreateComment } from "~/database/schema";
 
 export async function createComment(
   db: AppLoadContext["db"],
@@ -13,13 +13,48 @@ export async function createComment(
   return newComment;
 }
 
+export async function getCommentWithUser(
+  db: AppLoadContext["db"],
+  commentId: number
+) {
+  const [comment] = await db
+    .select({
+      id: commentTable.id,
+      content: commentTable.content,
+      game_id: commentTable.game_id,
+      created_at: commentTable.created_at,
+      updated_at: commentTable.updated_at,
+      user: {
+        id: userTable.id,
+        name: userTable.name,
+      },
+    })
+    .from(commentTable)
+    .innerJoin(userTable, eq(commentTable.user_id, userTable.id))
+    .where(eq(commentTable.id, commentId))
+    .limit(1);
+
+  return comment;
+}
+
 export async function getCommentsByGameId(
   db: AppLoadContext["db"],
   gameId: number
 ) {
   return db
-    .select()
+    .select({
+      id: commentTable.id,
+      content: commentTable.content,
+      game_id: commentTable.game_id,
+      created_at: commentTable.created_at,
+      updated_at: commentTable.updated_at,
+      user: {
+        id: userTable.id,
+        name: userTable.name,
+      },
+    })
     .from(commentTable)
+    .innerJoin(userTable, eq(commentTable.user_id, userTable.id))
     .where(eq(commentTable.game_id, gameId))
     .orderBy(commentTable.created_at);
 }
