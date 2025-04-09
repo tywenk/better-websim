@@ -19,6 +19,7 @@ import {
 } from "~/components/ui/sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { getCommentsByGameId } from "~/crud/comment.server";
+import { createGameVisit } from "~/crud/game-visit.server";
 import {
   getGameIterationsByGameId,
   incrementGamePlayCount,
@@ -33,6 +34,11 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   const game = await incrementGamePlayCount(context.db, gameId);
   if (!game) return redirect("/");
+
+  // Record game visit if user is logged in
+  if (userId) {
+    await createGameVisit(context.db, userId, gameId);
+  }
 
   const [comments, iterations] = await Promise.all([
     getCommentsByGameId(context.db, gameId),

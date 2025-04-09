@@ -36,6 +36,13 @@
       "when": 1744222001791,
       "tag": "0005_nice_argent",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1744226431418,
+      "tag": "0006_needy_grandmaster",
+      "breakpoints": true
     }
   ]
 }

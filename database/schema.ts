@@ -1,6 +1,7 @@
 import { relations, sql } from "drizzle-orm";
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
+// First declare tables without foreign key references
 export const userTable = sqliteTable("user", {
   id: integer().primaryKey({ autoIncrement: true }),
   name: text().notNull(),
@@ -25,6 +26,19 @@ export const gameTable = sqliteTable("game", {
     .notNull()
     .default(sql`(CURRENT_TIMESTAMP)`)
     .$onUpdate(() => sql`(CURRENT_TIMESTAMP)`),
+});
+
+export const gameVisitTable = sqliteTable("game_visit", {
+  id: integer().primaryKey({ autoIncrement: true }),
+  user_id: integer()
+    .notNull()
+    .references(() => userTable.id),
+  game_id: integer()
+    .notNull()
+    .references(() => gameTable.id),
+  visited_at: text("visited_at")
+    .notNull()
+    .default(sql`(CURRENT_TIMESTAMP)`),
 });
 
 export const gameIterationTable = sqliteTable("game_iteration", {
@@ -86,8 +100,8 @@ export const pendingFriendshipTable = sqliteTable("pending_friendship", {
     .default(sql`(CURRENT_TIMESTAMP)`),
 });
 
-// Define relationships
-export const userRelations = relations(userTable, ({ many }) => ({
+// Then add foreign key references through relations
+export const userRelations = relations(userTable, ({ one, many }) => ({
   games: many(gameTable),
   comments: many(commentTable),
   friends: many(friendshipTable, { relationName: "userFriends" }),
@@ -98,6 +112,7 @@ export const userRelations = relations(userTable, ({ many }) => ({
   receivedFriendRequests: many(pendingFriendshipTable, {
     relationName: "friendRequestReceiver",
   }),
+  gameVisits: many(gameVisitTable),
 }));
 
 export const gameRelations = relations(gameTable, ({ one, many }) => ({
@@ -107,6 +122,18 @@ export const gameRelations = relations(gameTable, ({ one, many }) => ({
   }),
   iterations: many(gameIterationTable),
   comments: many(commentTable),
+  visits: many(gameVisitTable),
+}));
+
+export const gameVisitRelations = relations(gameVisitTable, ({ one }) => ({
+  user: one(userTable, {
+    fields: [gameVisitTable.user_id],
+    references: [userTable.id],
+  }),
+  game: one(gameTable, {
+    fields: [gameVisitTable.game_id],
+    references: [gameTable.id],
+  }),
 }));
 
 export const gameIterationRelations = relations(
@@ -163,6 +190,8 @@ export type User = Omit<typeof userTable.$inferSelect, "password_hash">;
 export type CreateUser = typeof userTable.$inferInsert;
 export type Game = typeof gameTable.$inferSelect;
 export type CreateGame = typeof gameTable.$inferInsert;
+export type GameVisit = typeof gameVisitTable.$inferSelect;
+export type CreateGameVisit = typeof gameVisitTable.$inferInsert;
 export type GameIteration = typeof gameIterationTable.$inferSelect;
 export type CreateGameIteration = typeof gameIterationTable.$inferInsert;
 export type Comment = typeof commentTable.$inferSelect;
