@@ -19,9 +19,11 @@ import type { Game } from "~/database/schema";
 export function IterationsSidebar({
   iterations: initialIterations,
   game,
+  isOwner,
 }: {
   iterations: Awaited<ReturnType<typeof getGameIterationsByGameId>>;
   game: Game;
+  isOwner: boolean;
 }) {
   const iterationFetcher = useFetcher({ key: "iteration" });
   const [iterations, setIterations] = useState(initialIterations);
@@ -44,38 +46,40 @@ export function IterationsSidebar({
 
   return (
     <>
-      <div className="sticky top-0 z-10 bg-sidebar border-b">
-        <iterationFetcher.Form
-          ref={formRef}
-          method="post"
-          action={`/game/${game.id}/iteration`}
-          className="p-2"
-        >
-          <div className="flex flex-col gap-2">
-            <Textarea
-              id="content"
-              name="content"
-              placeholder="Add iteration content..."
-              required
-              className="min-h-[100px] resize-none max-h-[200px]"
-            />
-            <Button
-              type="submit"
-              disabled={iterationFetcher.state === "submitting"}
-              className="w-full"
-            >
-              {iterationFetcher.state === "submitting" ? (
-                "Adding..."
-              ) : (
-                <>
-                  <SendIcon className="size-4 mr-2" />
-                  Add Iteration
-                </>
-              )}
-            </Button>
-          </div>
-        </iterationFetcher.Form>
-      </div>
+      {isOwner && (
+        <div className="sticky top-0 z-10 bg-sidebar border-b">
+          <iterationFetcher.Form
+            ref={formRef}
+            method="post"
+            action={`/game/${game.id}/iteration`}
+            className="p-2"
+          >
+            <div className="flex flex-col gap-2">
+              <Textarea
+                id="content"
+                name="content"
+                placeholder="Add iteration content..."
+                required
+                className="min-h-[100px] resize-none max-h-[200px]"
+              />
+              <Button
+                type="submit"
+                disabled={iterationFetcher.state === "submitting"}
+                className="w-full"
+              >
+                {iterationFetcher.state === "submitting" ? (
+                  "Adding..."
+                ) : (
+                  <>
+                    <SendIcon className="size-4 mr-2" />
+                    Add Iteration
+                  </>
+                )}
+              </Button>
+            </div>
+          </iterationFetcher.Form>
+        </div>
+      )}
       <ScrollArea className="max-w-full [&_[data-radix-scroll-area-viewport]>div]:!block">
         <ul className="p-2 flex flex-col gap-2 w-full">
           {sortedIterations.map((iteration) => (

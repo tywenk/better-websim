@@ -7,9 +7,10 @@ import {
   useLoaderData,
 } from "react-router";
 import { CommentsSidebar } from "~/components/comments-sidebar";
-import { EditableText } from "~/components/EditableText";
+import { EditableText } from "~/components/editable-text";
 import { IterationsSidebar } from "~/components/iterations-sidebar";
 import { SidebarLayout } from "~/components/sidebar-layout";
+import { Badge } from "~/components/ui/badge";
 import {
   Sidebar,
   SidebarContent,
@@ -72,29 +73,33 @@ export default function GamePage() {
           />
         </SidebarHeader>
         <SidebarContent>
-          <Tabs defaultValue="comments">
+          <Tabs defaultValue="iterations">
             <div className="p-2">
               <TabsList className="w-full">
-                <TabsTrigger value="comments">
-                  Comments ({comments.length})
+                <TabsTrigger value="iterations" className="flex gap-2">
+                  Versions
+                  <Badge variant="secondary" className="ml-1">
+                    {iterations.length}
+                  </Badge>
                 </TabsTrigger>
-                <TabsTrigger
-                  disabled={!isOwner}
-                  value="iterations"
-                  className="flex-1"
-                >
-                  Iterations ({iterations.length})
+                <TabsTrigger value="comments" className="flex gap-2">
+                  Comments
+                  <Badge variant="secondary" className="ml-1">
+                    {comments.length}
+                  </Badge>
                 </TabsTrigger>
               </TabsList>
             </div>
             <TabsContent value="comments">
               <CommentsSidebar comments={comments} game={game} />
             </TabsContent>
-            {isOwner && (
-              <TabsContent value="iterations">
-                <IterationsSidebar iterations={iterations} game={game} />
-              </TabsContent>
-            )}
+            <TabsContent value="iterations">
+              <IterationsSidebar
+                iterations={iterations}
+                game={game}
+                isOwner={isOwner}
+              />
+            </TabsContent>
           </Tabs>
         </SidebarContent>
       </Sidebar>
