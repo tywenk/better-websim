@@ -1,5 +1,9 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { createGameIteration, getGame } from "~/crud/game.server";
+import {
+  createGameIteration,
+  getGame,
+  getGameIterationsByGameId,
+} from "~/crud/game.server";
 import { authorize } from "~/lib/session.server";
 import type { Route } from "./+types/game.$id.iteration";
 
@@ -31,6 +35,22 @@ export async function action({ context, request, params }: Route.ActionArgs) {
     });
   }
 
+  // Get the previous 5 iterations
+  const previousIterations = await getGameIterationsByGameId(
+    context.db,
+    gameId,
+    { sortBy: "created_at", direction: "desc", limit: 5 }
+  );
+
+  const previousIterationsContext = previousIterations
+    .map(
+      (iteration, idx) =>
+        `Iteration ${idx + 1} with prompt "${iteration.prompt}": ${
+          iteration.content
+        }`
+    )
+    .join("\n");
+
   // Initialize Anthropic client with key from Cloudflare context
   const anthropic = new Anthropic({
     apiKey: context.cloudflare.env.ANTHROPIC_API_KEY,
@@ -45,7 +65,11 @@ export async function action({ context, request, params }: Route.ActionArgs) {
         role: "user",
         content: `You are an expert AI coding assistant. Only respond with the code. Do not include any other text. All the code should be returned in a single html string. Do not include code blocks ticks or anything else. Just the code.
 
-        This is the following context for the game:
+        Take into account the following context for the game:
+
+        ${previousIterationsContext}
+
+        Given the previous context, generate a new iteration for the game based on the following prompt:
 ${prompt}`,
       },
     ],
@@ -58,6 +82,7 @@ ${prompt}`,
   const newIteration = await createGameIteration(context.db, {
     content,
     game_id: gameId,
+    prompt,
   });
 
   return { iteration: newIteration };

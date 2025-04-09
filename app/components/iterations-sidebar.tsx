@@ -12,9 +12,38 @@ import {
   DialogTrigger,
 } from "~/components/ui/dialog";
 import { ScrollArea } from "~/components/ui/scroll-area";
+import { Separator } from "~/components/ui/separator";
 import { Textarea } from "~/components/ui/textarea";
 import type { getGameIterationsByGameId } from "~/crud/game.server";
 import type { Game } from "~/database/schema";
+
+function highlightDiff(oldContent: string, newContent: string): string {
+  const oldLines = oldContent.split("\n");
+  const newLines = newContent.split("\n");
+  const result: string[] = [];
+
+  for (let i = 0; i < newLines.length; i++) {
+    const newLine = newLines[i];
+    const oldLine = oldLines[i];
+
+    if (oldLine === undefined) {
+      // Line was added
+      result.push(`+ ${newLine}`);
+    } else if (newLine !== oldLine) {
+      // Line was modified
+      result.push(`- ${oldLine}`);
+      result.push(`+ ${newLine}`);
+    }
+    // Omit unchanged lines
+  }
+
+  // If there are no changes, return a message indicating so
+  if (result.length === 0) {
+    return "[No changes]";
+  }
+
+  return result.join("\n");
+}
 
 export function IterationsSidebar({
   iterations: initialIterations,
@@ -82,7 +111,7 @@ export function IterationsSidebar({
       )}
       <ScrollArea className="max-w-full [&_[data-radix-scroll-area-viewport]>div]:!block">
         <ul className="p-2 flex flex-col gap-2 w-full">
-          {sortedIterations.map((iteration) => (
+          {sortedIterations.map((iteration, index) => (
             <li
               key={iteration.id}
               className="border rounded-md p-2 flex flex-1 flex-col gap-1.5 cursor-pointer w-full overflow-hidden hover:shadow-md transition-all duration-200 ease-in-out hover:border-primary/50 hover:bg-accent/50"
@@ -95,8 +124,19 @@ export function IterationsSidebar({
                   {new Date(iteration.created_at).toLocaleString()}
                 </p>
               </div>
-              <pre className="line-clamp-3 font-mono text-xs whitespace-pre-wrap break-words w-full">
-                {iteration.content}
+              {iteration.prompt && (
+                <div className="flex flex-col gap-1">
+                  <p className="text-sm">{iteration.prompt}</p>
+                </div>
+              )}
+              <Separator className="my-2" />
+              <pre className="line-clamp-5 font-mono text-xs whitespace-pre-wrap break-words w-full">
+                {index < sortedIterations.length - 1
+                  ? highlightDiff(
+                      sortedIterations[index + 1].content,
+                      iteration.content
+                    )
+                  : iteration.content}
               </pre>
               <div className="flex items-center justify-between pt-1.5 border-t mt-1">
                 <span className="text-xs text-muted-foreground">
@@ -132,6 +172,11 @@ export function IterationsSidebar({
                           {new Date(iteration.created_at).toLocaleString()}
                         </div>
                       </DialogHeader>
+                      <div className="flex flex-col gap-1">
+                        <p className="text-sm text-muted-foreground">Prompt:</p>
+                        <p className="text-sm">{iteration.prompt}</p>
+                      </div>
+                      <Separator className="my-2" />
                       <ScrollArea className="max-h-[60vh]">
                         <pre className="whitespace-pre-wrap break-words font-mono text-sm p-4">
                           {iteration.content}
