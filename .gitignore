@@ -11,5 +11,5 @@
 .wrangler
 
 # Environment Variables
-dev.vars
+.dev.vars
 .env

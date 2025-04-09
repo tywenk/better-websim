@@ -4,7 +4,9 @@ import type { AppLoadContext } from "react-router";
 import * as schema from "./database/schema";
 
 declare global {
-  interface CloudflareEnvironment extends Env {}
+  interface CloudflareEnvironment extends Env {
+    ANTHROPIC_API_KEY: string;
+  }
 }
 
 declare module "react-router" {
