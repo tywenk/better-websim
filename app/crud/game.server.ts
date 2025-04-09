@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import type { AppLoadContext } from "react-router";
 import {
   gameIterationTable,
@@ -16,6 +16,7 @@ export async function createGame(db: AppLoadContext["db"], data: CreateGame) {
     id: gameTable.id,
     name: gameTable.name,
     creator_id: gameTable.creator_id,
+    play_count: gameTable.play_count,
     created_at: gameTable.created_at,
     updated_at: gameTable.updated_at,
   });
@@ -28,6 +29,7 @@ export async function getGame(db: AppLoadContext["db"], id: number) {
       id: gameTable.id,
       name: gameTable.name,
       creator_id: gameTable.creator_id,
+      play_count: gameTable.play_count,
       created_at: gameTable.created_at,
       updated_at: gameTable.updated_at,
       creator: {
@@ -51,6 +53,7 @@ export async function getGames(db: AppLoadContext["db"]) {
       id: gameTable.id,
       name: gameTable.name,
       creator_id: gameTable.creator_id,
+      play_count: gameTable.play_count,
       created_at: gameTable.created_at,
       updated_at: gameTable.updated_at,
       creator: {
@@ -73,6 +76,7 @@ export async function getGamesByUserId(
       id: gameTable.id,
       name: gameTable.name,
       creator_id: gameTable.creator_id,
+      play_count: gameTable.play_count,
       created_at: gameTable.created_at,
       updated_at: gameTable.updated_at,
       creator: {
@@ -100,6 +104,7 @@ export async function updateGame(
       id: gameTable.id,
       name: gameTable.name,
       creator_id: gameTable.creator_id,
+      play_count: gameTable.play_count,
       created_at: gameTable.created_at,
       updated_at: gameTable.updated_at,
     });
@@ -118,6 +123,32 @@ export async function deleteGame(
     .where(eq(gameTable.id, id))
     .returning();
   return !!result;
+}
+
+// Add a new function to increment play count
+export async function incrementGamePlayCount(
+  db: AppLoadContext["db"],
+  id: number
+): Promise<Game | null> {
+  const [game] = await db
+    .update(gameTable)
+    .set({
+      play_count: sql`${gameTable.play_count} + 1`,
+      updated_at: new Date().toISOString(),
+    })
+    .where(eq(gameTable.id, id))
+    .returning({
+      id: gameTable.id,
+      name: gameTable.name,
+      creator_id: gameTable.creator_id,
+      play_count: gameTable.play_count,
+      created_at: gameTable.created_at,
+      updated_at: gameTable.updated_at,
+    });
+
+  if (!game) return null;
+
+  return game;
 }
 
 // Game Iteration CRUD operations

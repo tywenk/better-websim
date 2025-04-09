@@ -22,6 +22,13 @@
       "when": 1744170787097,
       "tag": "0002_lumpy_zaladane",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1744207403447,
+      "tag": "0003_sour_mercury",
+      "breakpoints": true
     }
   ]
 }

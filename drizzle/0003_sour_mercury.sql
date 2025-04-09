@@ -1,0 +1,1 @@
+ALTER TABLE `game` ADD `play_count` integer DEFAULT 0 NOT NULL;

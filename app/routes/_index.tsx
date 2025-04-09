@@ -61,9 +61,16 @@ export default function Home() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground">
-                    Created {formatDistanceToNow(new Date(game.created_at))} ago
-                  </p>
+                  <div className="space-y-1">
+                    <p className="text-sm text-muted-foreground">
+                      Created {formatDistanceToNow(new Date(game.created_at))}{" "}
+                      ago
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {game.play_count}{" "}
+                      {game.play_count === 1 ? "view" : "views"}
+                    </p>
+                  </div>
                 </CardContent>
               </Card>
             </Link>

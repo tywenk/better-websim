@@ -14,6 +14,7 @@ export const gameTable = sqliteTable("game", {
   creator_id: integer()
     .notNull()
     .references(() => userTable.id),
+  play_count: integer().notNull().default(0),
   created_at: text("created_at")
     .notNull()
     .default(sql`(CURRENT_TIMESTAMP)`),
