@@ -1,5 +1,5 @@
 workers_dev = true
-name = "my-worker"
+name = "better-websim"
 compatibility_date = "2025-03-11"
 compatibility_flags = ["nodejs_compat"]
 main = "./build/server/index.js"

@@ -9,3 +9,7 @@
 # Cloudflare
 .mf
 .wrangler
+
+# Environment Variables
+dev.vars
+.env
