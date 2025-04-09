@@ -16,6 +16,7 @@ const userSchema = z.object({
   id: z.number(),
   name: z.string(),
   email: z.string(),
+  last_seen_at: z.string(),
 }) satisfies z.ZodType<User>;
 
 export const friendsSchema = z.object({

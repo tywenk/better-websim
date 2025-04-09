@@ -137,5 +137,4 @@ export function useEventStream<
   }, [url]);
   return useSubscribe(source, options);
 }
-
 const sources = new Map<string, EventSource>();

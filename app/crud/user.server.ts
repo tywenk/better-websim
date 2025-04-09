@@ -44,6 +44,7 @@ export async function getUserById(
       id: userTable.id,
       name: userTable.name,
       email: userTable.email,
+      last_seen_at: userTable.last_seen_at,
     })
     .from(userTable)
     .where(eq(userTable.id, numericId));
@@ -83,6 +84,7 @@ export async function updateUser(
       id: userTable.id,
       name: userTable.name,
       email: userTable.email,
+      last_seen_at: userTable.last_seen_at,
     });
 
   return user;
@@ -113,4 +115,21 @@ export async function verifyPassword(
   if (!user) return false;
 
   return bcrypt.compare(password, user.password_hash);
+}
+
+export async function updateLastSeen(db: AppLoadContext["db"], id: number) {
+  const [user] = await db
+    .update(userTable)
+    .set({
+      last_seen_at: new Date().toISOString(),
+    })
+    .where(eq(userTable.id, id))
+    .returning({
+      id: userTable.id,
+      name: userTable.name,
+      email: userTable.email,
+      last_seen_at: userTable.last_seen_at,
+    });
+
+  return user;
 }

@@ -25,8 +25,6 @@ export async function action({ context, request, params }: ActionFunctionArgs) {
   }
 
   // Check if the user is the creator
-  console.log(game.creator_id, userId);
-  console.log(game.creator_id === userId);
   if (game.creator_id !== userId) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
       status: 403,

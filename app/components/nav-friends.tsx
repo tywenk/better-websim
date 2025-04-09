@@ -1,3 +1,4 @@
+import { differenceInMinutes, formatDistanceToNow } from "date-fns";
 import { Check, Clock, Trash2Icon, UserPlus, Users, X } from "lucide-react";
 import { useState } from "react";
 import { useFetcher } from "react-router";
@@ -17,13 +18,41 @@ import {
 import { Input } from "~/components/ui/input";
 import {
   SidebarGroup,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "~/components/ui/sidebar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
 import { useFriends } from "~/hooks/use-friends";
+import { cn } from "~/lib/utils";
 import { friendsSchema } from "~/routes/sse";
+
+type OnlineStatus = "online" | "away" | "offline";
+
+interface StatusInfo {
+  status: OnlineStatus;
+  color: string;
+}
+
+/**
+ * Get user's online status based on when they were last seen
+ */
+function getOnlineStatus(lastSeenAt: string): StatusInfo {
+  const diffInMinutes = differenceInMinutes(new Date(), new Date(lastSeenAt));
+
+  if (diffInMinutes <= 1) {
+    return { status: "online", color: "bg-emerald-500" };
+  }
+  if (diffInMinutes <= 5) {
+    return { status: "away", color: "bg-orange-500" };
+  }
+  return { status: "offline", color: "" };
+}
 
 export function NavFriends({
   initialFriends,
@@ -105,7 +134,6 @@ export function NavFriends({
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Friends ({friends.length})</SidebarGroupLabel>
       <SidebarMenu>
         <SidebarMenuItem>
           <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -231,53 +259,90 @@ export function NavFriends({
                 Friends ({friends.length})
               </span>
             </SidebarMenuItem>
-            {friends.map((friendship) => (
-              <SidebarMenuItem key={friendship.id}>
-                <SidebarMenuButton className="group relative">
-                  <Avatar className="h-6 w-6 rounded-lg">
-                    <AvatarFallback className="rounded-lg text-xs">
-                      {friendship.friend.name.slice(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="truncate">{friendship.friend.name}</span>
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <button
-                        className="absolute right-2 text-red-500 hover:text-red-600 rounded-full p-1 hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <Trash2Icon className="size-4" />
-                        <span className="sr-only">Remove friend</span>
-                      </button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Remove Friend</DialogTitle>
-                        <DialogDescription>
-                          Are you sure you want to remove{" "}
-                          {friendship.friend.name} from your friends list? This
-                          action cannot be undone.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <DialogFooter>
-                        <Button
-                          variant="destructive"
-                          onClick={() =>
-                            handleRemoveFriend(
-                              friendship.friend.id,
-                              friendship.friend.name
-                            )
-                          }
-                          disabled={removeFriendFetcher.state === "submitting"}
+            {friends.map((friendship) => {
+              const onlineStatus = getOnlineStatus(
+                friendship.friend.last_seen_at
+              );
+              return (
+                <SidebarMenuItem key={friendship.id}>
+                  <SidebarMenuButton className="group relative">
+                    <Avatar className="h-6 w-6 rounded-lg">
+                      <AvatarFallback className="rounded-lg text-xs">
+                        {friendship.friend.name.slice(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="truncate">{friendship.friend.name}</span>
+                    {onlineStatus.color && (
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div
+                              className={cn(
+                                "size-2 rounded-full absolute left-7 top-1",
+                                onlineStatus.color
+                              )}
+                            />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            Last seen{" "}
+                            {formatDistanceToNow(
+                              new Date(friendship.friend.last_seen_at)
+                            )}{" "}
+                            ago
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    )}
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <div
+                          role="button"
+                          tabIndex={0}
+                          className="absolute right-2 text-red-500 hover:text-red-600 rounded-full p-1 hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                          onClick={(e) => e.stopPropagation()}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              e.currentTarget.click();
+                            }
+                          }}
                         >
-                          Remove Friend
-                        </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
+                          <Trash2Icon className="size-4" />
+                          <span className="sr-only">Remove friend</span>
+                        </div>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Remove Friend</DialogTitle>
+                          <DialogDescription>
+                            Are you sure you want to remove{" "}
+                            {friendship.friend.name} from your friends list?
+                            This action cannot be undone.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <DialogFooter>
+                          <Button
+                            variant="destructive"
+                            onClick={() =>
+                              handleRemoveFriend(
+                                friendship.friend.id,
+                                friendship.friend.name
+                              )
+                            }
+                            disabled={
+                              removeFriendFetcher.state === "submitting"
+                            }
+                          >
+                            Remove Friend
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              );
+            })}
           </>
         )}
 

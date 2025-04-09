@@ -6,6 +6,9 @@ export const userTable = sqliteTable("user", {
   name: text().notNull(),
   email: text().notNull().unique(),
   password_hash: text().notNull(),
+  last_seen_at: text("last_seen_at")
+    .notNull()
+    .default("1970-01-01T00:00:00.000Z"),
 });
 
 export const gameTable = sqliteTable("game", {

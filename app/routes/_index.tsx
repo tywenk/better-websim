@@ -24,6 +24,7 @@ import {
   getPendingSentRequests,
 } from "~/crud/friends.server";
 import { getGames, getGamesByUserId } from "~/crud/game.server";
+import { updateLastSeen } from "~/crud/user.server";
 import { useUser } from "~/hooks/loaders";
 import { getUserId } from "~/lib/session.server";
 import { friendsSchema } from "~/routes/sse";
@@ -96,6 +97,8 @@ export async function loader({ context, request }: Route.LoaderArgs) {
       pendingSent: [],
     };
   }
+
+  await updateLastSeen(context.db, userId);
 
   const [games, allGames, friends, pendingReceived, pendingSent] =
     await Promise.all([
