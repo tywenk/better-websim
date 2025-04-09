@@ -1,9 +1,9 @@
-import type { ActionFunctionArgs } from "react-router";
+import type { Route } from "./+types/friend.$id.remove";
 
 import { removeFriendship } from "~/crud/friends.server";
 import { authorize } from "~/lib/session.server";
 
-export async function action({ context, params, request }: ActionFunctionArgs) {
+export async function action({ context, params, request }: Route.ActionArgs) {
   const userId = await authorize(request);
   const friendId = Number(params.id);
 

@@ -1,8 +1,8 @@
-import { type ActionFunctionArgs } from "react-router";
 import { getGame, updateGame } from "~/crud/game.server";
 import { authorize } from "~/lib/session.server";
+import type { Route } from "./+types/game.$id.update";
 
-export async function action({ context, request, params }: ActionFunctionArgs) {
+export async function action({ context, request, params }: Route.ActionArgs) {
   // Only allow logged in users to update games
   const userId = await authorize(request);
   const gameId = Number(params.id);

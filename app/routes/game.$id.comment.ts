@@ -1,8 +1,8 @@
-import { type ActionFunctionArgs } from "react-router";
 import { createComment, getCommentWithUser } from "~/crud/comment.server";
 import { authorize } from "~/lib/session.server";
+import type { Route } from "./+types/game.$id.comment";
 
-export async function action({ context, request, params }: ActionFunctionArgs) {
+export async function action({ context, request, params }: Route.ActionArgs) {
   // Only allow logged in users to create comments
   const userId = await authorize(request);
   const formData = await request.formData();
