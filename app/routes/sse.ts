@@ -62,7 +62,7 @@ export async function loader({ request, context }: Route.LoaderArgs) {
     await sendUpdate();
 
     // Set up interval for subsequent updates
-    const update = setInterval(sendUpdate, 1000);
+    const update = setInterval(sendUpdate, 2000);
 
     return async () => {
       clearInterval(update);

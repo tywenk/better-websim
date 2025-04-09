@@ -18,9 +18,15 @@ import {
 } from "~/components/ui/card";
 import { SidebarInset } from "~/components/ui/sidebar";
 import { Skeleton } from "~/components/ui/skeleton";
+import {
+  getFriends,
+  getPendingReceivedRequests,
+  getPendingSentRequests,
+} from "~/crud/friends.server";
 import { getGames, getGamesByUserId } from "~/crud/game.server";
 import { useUser } from "~/hooks/loaders";
 import { getUserId } from "~/lib/session.server";
+import { friendsSchema } from "~/routes/sse";
 import type { Route } from "./+types/_index";
 
 // Helper function to highlight search terms
@@ -81,20 +87,32 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 
   if (!userId) {
     const allGames = await getGames(context.db, search);
-    return { games: [], allGames, search };
+    return {
+      games: [],
+      allGames,
+      search,
+      friends: [],
+      pendingReceived: [],
+      pendingSent: [],
+    };
   }
 
-  const [games, allGames] = await Promise.all([
-    getGamesByUserId(context.db, userId),
-    getGames(context.db, search),
-  ]);
+  const [games, allGames, friends, pendingReceived, pendingSent] =
+    await Promise.all([
+      getGamesByUserId(context.db, userId),
+      getGames(context.db, search),
+      getFriends(context.db, userId),
+      getPendingReceivedRequests(context.db, userId),
+      getPendingSentRequests(context.db, userId),
+    ]);
 
-  return { games, allGames, search };
+  return { games, allGames, search, friends, pendingReceived, pendingSent };
 }
 
 export default function Home() {
   const user = useUser();
-  const { games, allGames, search } = useLoaderData<typeof loader>();
+  const { games, allGames, search, friends, pendingReceived, pendingSent } =
+    useLoaderData<typeof loader>();
   const navigation = useNavigation();
   const [searchParams, setSearchParams] = useSearchParams();
   const isSearching = navigation.state === "loading" && searchParams.has("q");
@@ -124,7 +142,16 @@ export default function Home() {
 
   return (
     <SidebarLayout>
-      {user ? <AppSidebar games={games ?? []} /> : null}
+      {user ? (
+        <AppSidebar
+          games={games ?? []}
+          initialFriends={friendsSchema.parse({
+            friends,
+            pendingReceived,
+            pendingSent,
+          })}
+        />
+      ) : null}
       <SidebarInset className="p-4">
         {search && (
           <div className="absolute left-1/2 -translate-x-1/2 top-4 z-10">

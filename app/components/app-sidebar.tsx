@@ -2,6 +2,7 @@ import { PlusIcon } from "lucide-react";
 import * as React from "react";
 import { Form, href } from "react-router";
 
+import type { z } from "zod";
 import { NavFriends } from "~/components/nav-friends";
 import { NavGames } from "~/components/nav-games";
 import { NavUser } from "~/components/nav-user";
@@ -16,11 +17,16 @@ import {
 } from "~/components/ui/sidebar";
 import type { Game } from "~/database/schema";
 import { useUser } from "~/hooks/loaders";
+import { friendsSchema } from "~/routes/sse";
 
 export function AppSidebar({
   games,
+  initialFriends,
   ...props
-}: React.ComponentProps<typeof Sidebar> & { games: Game[] }) {
+}: React.ComponentProps<typeof Sidebar> & {
+  games: Game[];
+  initialFriends: z.infer<typeof friendsSchema>;
+}) {
   const user = useUser();
   return (
     <Sidebar
@@ -46,7 +52,7 @@ export function AppSidebar({
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        {user ? <NavFriends /> : null}
+        {user ? <NavFriends initialFriends={initialFriends} /> : null}
         <NavGames games={games} />
       </SidebarContent>
       <SidebarFooter className="flex flex-col gap-2">

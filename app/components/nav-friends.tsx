@@ -23,10 +23,14 @@ import {
   SidebarMenuItem,
 } from "~/components/ui/sidebar";
 import { useFriends } from "~/hooks/use-friends";
-import type { friendsSchema } from "~/routes/sse";
+import { friendsSchema } from "~/routes/sse";
 
-export function NavFriends() {
-  const friendsData = useFriends();
+export function NavFriends({
+  initialFriends,
+}: {
+  initialFriends: z.infer<typeof friendsSchema>;
+}) {
+  const friendsData = useFriends(initialFriends);
   const [isOpen, setIsOpen] = useState(false);
   const addFriendFetcher = useFetcher();
   const actionFetcher = useFetcher();
@@ -229,7 +233,7 @@ export function NavFriends() {
             </SidebarMenuItem>
             {friends.map((friendship) => (
               <SidebarMenuItem key={friendship.id}>
-                <SidebarMenuButton>
+                <SidebarMenuButton className="group relative">
                   <Avatar className="h-6 w-6 rounded-lg">
                     <AvatarFallback className="rounded-lg text-xs">
                       {friendship.friend.name.slice(0, 2).toUpperCase()}
@@ -239,7 +243,7 @@ export function NavFriends() {
                   <Dialog>
                     <DialogTrigger asChild>
                       <button
-                        className="ml-auto text-red-500 hover:text-red-600 rounded-full p-1 hover:bg-red-500/10"
+                        className="absolute right-2 text-red-500 hover:text-red-600 rounded-full p-1 hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <Trash2Icon className="size-4" />

@@ -14,6 +14,7 @@ type EventOptions<
   channel?: string;
   returnLatestOnly?: TReturnLatest;
   deserialize?: TDeserialized;
+  initialData?: ReturnType<TDeserialized>;
 };
 
 type LatestOrAllEvents<
@@ -46,9 +47,16 @@ function useSubscribe<
     channel: "message",
   }
 ): UseSubscribeReturn<TReturnLatest, TDeserialize> {
-  const { deserialize, maxEventRetention, returnLatestOnly, channel } = options;
-  const [data, setData] =
-    useState<UseSubscribeReturn<TReturnLatest, TDeserialize>>(null);
+  const {
+    deserialize,
+    maxEventRetention,
+    returnLatestOnly,
+    channel,
+    initialData,
+  } = options;
+  const [data, setData] = useState<
+    UseSubscribeReturn<TReturnLatest, TDeserialize>
+  >(initialData ?? null);
 
   useEffect(() => {
     if (!eventSource) return;
