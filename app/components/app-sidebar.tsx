@@ -48,12 +48,8 @@ export function AppSidebar({
         <NavGames games={games} />
       </SidebarContent>
       <SidebarFooter className="flex flex-col gap-2">
-        {user ? <NavUser user={user} /> : <NavLogin />}
+        {user ? <NavUser user={user} /> : null}
       </SidebarFooter>
     </Sidebar>
   );
-}
-
-function NavLogin() {
-  return <div>Login</div>;
 }

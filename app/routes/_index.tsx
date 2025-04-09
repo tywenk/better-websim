@@ -24,10 +24,16 @@ export function meta({}: Route.MetaArgs) {
 
 export async function loader({ context, request }: Route.LoaderArgs) {
   const userId = await getUserId(request);
-  if (!userId) return { games: [] };
 
-  const games = await getGamesByUserId(context.db, userId);
-  const allGames = await getGames(context.db);
+  if (!userId) {
+    const allGames = await getGames(context.db);
+    return { games: [], allGames };
+  }
+
+  const [games, allGames] = await Promise.all([
+    getGamesByUserId(context.db, userId),
+    getGames(context.db),
+  ]);
 
   return { games, allGames };
 }
