@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { getFriends } from "~/crud/friends.server";
+import {
+  getFriends,
+  getPendingReceivedRequests,
+  getPendingSentRequests,
+} from "~/crud/friends.server";
 import type { User } from "~/database/schema";
 import { EventStream } from "~/lib/eventstream.server";
 import { authorize } from "~/lib/session.server";
@@ -14,21 +18,42 @@ const userSchema = z.object({
   email: z.string(),
 }) satisfies z.ZodType<User>;
 
-export const friendsSchema = z.array(
-  z.object({
-    id: z.number(),
-    friend: userSchema,
-    created_at: z.string(),
-  })
-);
+export const friendsSchema = z.object({
+  friends: z.array(
+    z.object({
+      id: z.number(),
+      friend: userSchema,
+      created_at: z.string(),
+    })
+  ),
+  pendingReceived: z.array(
+    z.object({
+      id: z.number(),
+      sender: userSchema,
+      created_at: z.string(),
+    })
+  ),
+  pendingSent: z.array(
+    z.object({
+      id: z.number(),
+      receiver: userSchema,
+      created_at: z.string(),
+    })
+  ),
+});
 
 export async function loader({ request, context }: Route.LoaderArgs) {
   const userId = await authorize(request);
 
   return new EventStream(request, async (send) => {
     const sendUpdate = async () => {
-      const friends = await getFriends(context.db, userId);
-      send(JSON.stringify(friends), {
+      const [friends, pendingReceived, pendingSent] = await Promise.all([
+        getFriends(context.db, userId),
+        getPendingReceivedRequests(context.db, userId),
+        getPendingSentRequests(context.db, userId),
+      ]);
+
+      send(JSON.stringify({ friends, pendingReceived, pendingSent }), {
         channel: FRIENDS_CHANNEL,
       });
     };

@@ -1,8 +1,9 @@
-import { type ActionFunctionArgs, redirect } from "react-router";
+import { redirect } from "react-router";
 import { deleteGame, getGame } from "~/crud/game.server";
 import { authorize } from "~/lib/session.server";
+import type { Route } from "./+types/game.$id.delete";
 
-export async function action({ context, request, params }: ActionFunctionArgs) {
+export async function action({ context, request, params }: Route.ActionArgs) {
   // Only allow logged in users to delete games
   const userId = await authorize(request);
   const gameId = Number(params.id);

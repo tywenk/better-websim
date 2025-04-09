@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, or } from "drizzle-orm";
 import type { AppLoadContext } from "react-router";
 import { friendshipTable, pendingFriendshipTable } from "../../database/schema";
 
@@ -55,10 +55,9 @@ export async function acceptFriendRequest(
     throw new Error("Friend request not found");
   }
 
-  // Create bidirectional friendship entries
-  await db.transaction(async (tx) => {
-    // Create friendship entries in both directions
-    await tx.insert(friendshipTable).values([
+  // Create bidirectional friendship entries using D1's transaction API
+  await db.batch([
+    db.insert(friendshipTable).values([
       {
         user_id: request.sender_id,
         friend_id: request.receiver_id,
@@ -67,13 +66,11 @@ export async function acceptFriendRequest(
         user_id: request.receiver_id,
         friend_id: request.sender_id,
       },
-    ]);
-
-    // Delete the pending request
-    await tx
+    ]),
+    db
       .delete(pendingFriendshipTable)
-      .where(eq(pendingFriendshipTable.id, requestId));
-  });
+      .where(eq(pendingFriendshipTable.id, requestId)),
+  ]);
 }
 
 export async function rejectFriendRequest(
@@ -100,26 +97,42 @@ export async function removeFriendship(
   userId: number,
   friendId: number
 ) {
-  // Remove friendship entries in both directions
-  await db.transaction(async (tx) => {
-    await tx
-      .delete(friendshipTable)
-      .where(
-        and(
-          eq(friendshipTable.user_id, userId),
-          eq(friendshipTable.friend_id, friendId)
-        )
-      );
-
-    await tx
-      .delete(friendshipTable)
-      .where(
-        and(
-          eq(friendshipTable.user_id, friendId),
-          eq(friendshipTable.friend_id, userId)
-        )
-      );
+  // First verify that a friendship exists where either user is involved
+  const existingFriendship = await db.query.friendshipTable.findFirst({
+    where: or(
+      and(
+        eq(friendshipTable.user_id, userId),
+        eq(friendshipTable.friend_id, friendId)
+      ),
+      and(
+        eq(friendshipTable.user_id, friendId),
+        eq(friendshipTable.friend_id, userId)
+      )
+    ),
   });
+
+  if (!existingFriendship) {
+    throw new Error("Friendship not found");
+  }
+
+  // Remove friendship entries in both directions - doing this sequentially instead of in a transaction
+  await db
+    .delete(friendshipTable)
+    .where(
+      and(
+        eq(friendshipTable.user_id, userId),
+        eq(friendshipTable.friend_id, friendId)
+      )
+    );
+
+  await db
+    .delete(friendshipTable)
+    .where(
+      and(
+        eq(friendshipTable.user_id, friendId),
+        eq(friendshipTable.friend_id, userId)
+      )
+    );
 }
 
 export async function getFriends(db: AppLoadContext["db"], userId: number) {
