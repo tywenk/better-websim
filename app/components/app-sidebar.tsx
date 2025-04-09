@@ -1,9 +1,8 @@
-import { LifeBuoy, PlusIcon } from "lucide-react";
+import { PlusIcon } from "lucide-react";
 import * as React from "react";
-import { Link } from "react-router";
+import { Form, href } from "react-router";
 
 import { NavGames } from "~/components/nav-games";
-import { NavSecondary } from "~/components/nav-secondary";
 import { NavUser } from "~/components/nav-user";
 import {
   Sidebar,
@@ -15,17 +14,7 @@ import {
   SidebarMenuItem,
 } from "~/components/ui/sidebar";
 import type { Game } from "~/database/schema";
-import { useUser } from "~/hooks/useUser";
-
-const data = {
-  navSecondary: [
-    {
-      title: "Support",
-      url: "#",
-      icon: LifeBuoy,
-    },
-  ],
-};
+import { useUser } from "~/hooks/loaders";
 
 export function AppSidebar({
   games,
@@ -40,22 +29,23 @@ export function AppSidebar({
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <Link to="/new">
-                <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                  <PlusIcon className="size-4" />
-                </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">New game</span>
-                </div>
-              </Link>
-            </SidebarMenuButton>
+            <Form method="post" action={href("/game/new")}>
+              <SidebarMenuButton size="lg" asChild>
+                <button type="submit">
+                  <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+                    <PlusIcon className="size-4" />
+                  </div>
+                  <div className="grid flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-medium">New game</span>
+                  </div>
+                </button>
+              </SidebarMenuButton>
+            </Form>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
         <NavGames games={games} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
         {user ? <NavUser user={user} /> : <NavLogin />}

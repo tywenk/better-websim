@@ -39,14 +39,22 @@ export async function getGame(
     .from(gameTable)
     .where(eq(gameTable.id, id))
     .limit(1);
-  return game || null;
+
+  if (!game) return null;
+
+  return game;
+}
+
+export async function getGames(db: AppLoadContext["db"]): Promise<Game[]> {
+  const games = await db.select().from(gameTable);
+  return games;
 }
 
 export async function getGamesByUserId(
   db: AppLoadContext["db"],
   userId: number
 ): Promise<Game[]> {
-  return db
+  const games = await db
     .select({
       id: gameTable.id,
       name: gameTable.name,
@@ -56,6 +64,8 @@ export async function getGamesByUserId(
     })
     .from(gameTable)
     .where(eq(gameTable.creator_id, userId));
+
+  return games;
 }
 
 export async function updateGame(
@@ -65,7 +75,7 @@ export async function updateGame(
 ): Promise<Game | null> {
   const [game] = await db
     .update(gameTable)
-    .set({ ...data, updated_at: new Date() })
+    .set({ ...data, updated_at: new Date().toISOString() })
     .where(eq(gameTable.id, id))
     .returning({
       id: gameTable.id,
@@ -74,7 +84,10 @@ export async function updateGame(
       created_at: gameTable.created_at,
       updated_at: gameTable.updated_at,
     });
-  return game || null;
+
+  if (!game) return null;
+
+  return game;
 }
 
 export async function deleteGame(
@@ -130,7 +143,7 @@ export async function updateGameIteration(
 ): Promise<GameIteration | null> {
   const [iteration] = await db
     .update(gameIterationTable)
-    .set({ ...data, updated_at: new Date() })
+    .set({ ...data, updated_at: new Date().toISOString() })
     .where(eq(gameIterationTable.id, id))
     .returning();
   return iteration || null;

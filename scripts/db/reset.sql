@@ -1,0 +1,3 @@
+DROP TABLE IF EXISTS game_iteration;
+DROP TABLE IF EXISTS game;
+DROP TABLE IF EXISTS user; 

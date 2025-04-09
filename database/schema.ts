@@ -14,12 +14,13 @@ export const gameTable = sqliteTable("game", {
   creator_id: integer()
     .notNull()
     .references(() => userTable.id),
-  created_at: integer("created_at", { mode: "timestamp" })
+  created_at: text("created_at")
     .notNull()
-    .default(sql`CURRENT_TIMESTAMP`),
-  updated_at: integer("updated_at", { mode: "timestamp" })
+    .default(sql`(CURRENT_TIMESTAMP)`),
+  updated_at: text("updated_at")
     .notNull()
-    .default(sql`CURRENT_TIMESTAMP`),
+    .default(sql`(CURRENT_TIMESTAMP)`)
+    .$onUpdate(() => sql`(CURRENT_TIMESTAMP)`),
 });
 
 export const gameIterationTable = sqliteTable("game_iteration", {
@@ -27,12 +28,13 @@ export const gameIterationTable = sqliteTable("game_iteration", {
   game_id: integer()
     .notNull()
     .references(() => gameTable.id),
-  created_at: integer("created_at", { mode: "timestamp" })
+  created_at: text("created_at")
     .notNull()
-    .default(sql`CURRENT_TIMESTAMP`),
-  updated_at: integer("updated_at", { mode: "timestamp" })
+    .default(sql`(CURRENT_TIMESTAMP)`),
+  updated_at: text("updated_at")
     .notNull()
-    .default(sql`CURRENT_TIMESTAMP`),
+    .default(sql`(CURRENT_TIMESTAMP)`)
+    .$onUpdate(() => sql`(CURRENT_TIMESTAMP)`),
   content: text().notNull(),
 });
 

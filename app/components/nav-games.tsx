@@ -1,4 +1,5 @@
 import { Folder, MoreHorizontal, Share, Trash2 } from "lucide-react";
+import { NavLink } from "react-router";
 
 import {
   DropdownMenu,
@@ -17,6 +18,7 @@ import {
   useSidebar,
 } from "~/components/ui/sidebar";
 import type { Game } from "~/database/schema";
+import { cn } from "~/lib/utils";
 
 export function NavGames({ games }: { games: Game[] }) {
   const { isMobile } = useSidebar();
@@ -25,12 +27,16 @@ export function NavGames({ games }: { games: Game[] }) {
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
       <SidebarGroupLabel>Games</SidebarGroupLabel>
       <SidebarMenu>
-        {games.map((item) => (
-          <SidebarMenuItem key={item.name}>
+        {games.map((game) => (
+          <SidebarMenuItem key={game.name}>
             <SidebarMenuButton asChild>
-              <a href={"/"}>
-                <span>{item.name}</span>
-              </a>
+              <NavLink to={`/game/${game.id}`}>
+                {({ isActive }) => (
+                  <span className={cn(isActive && "font-semibold")}>
+                    {game.name}
+                  </span>
+                )}
+              </NavLink>
             </SidebarMenuButton>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -61,12 +67,6 @@ export function NavGames({ games }: { games: Game[] }) {
             </DropdownMenu>
           </SidebarMenuItem>
         ))}
-        <SidebarMenuItem>
-          <SidebarMenuButton>
-            <MoreHorizontal />
-            <span>More</span>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
       </SidebarMenu>
     </SidebarGroup>
   );

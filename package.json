@@ -7,6 +7,8 @@
     "db:generate": "dotenv -- drizzle-kit generate",
     "db:migrate": "wrangler d1 migrations apply --local DB",
     "db:migrate-production": "dotenv -- drizzle-kit migrate",
+    "db:reset": "wrangler d1 execute better-websim-db --local --file=scripts/db/reset.sql && pnpm run db:migrate",
+    "db:seed": "wrangler d1 execute better-websim-db --local --file=scripts/db/seed.sql",
     "deploy": "npm run build && wrangler deploy",
     "dev": "react-router dev",
     "start": "wrangler dev",

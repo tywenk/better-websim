@@ -67,7 +67,7 @@ export async function createUserSession({
 export async function authorize(request: Request) {
   const userId = await getUserId(request);
   if (!userId) {
-    return redirect("/login");
+    throw redirect("/login");
   }
   return userId;
 }

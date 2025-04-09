@@ -1,4 +1,3 @@
-import { ChevronsUpDown } from "lucide-react";
 import { useNavigate } from "react-router";
 
 import {
@@ -23,7 +22,6 @@ export function NavUser({ user }: { user: User }) {
           <div className="grid flex-1 text-left text-sm leading-tight">
             <span className="truncate font-medium">Login</span>
           </div>
-          <ChevronsUpDown className="ml-auto size-4" />
         </SidebarMenuButton>
       </SidebarMenuItem>
     </SidebarMenu>

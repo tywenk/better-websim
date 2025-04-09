@@ -7,6 +7,9 @@ import {
   ScrollRestoration,
 } from "react-router";
 
+import { getGamesByUserId } from "~/crud/game.server";
+import { getUserById } from "~/crud/user.server";
+import { getUserId } from "~/lib/session.server";
 import type { Route } from "./+types/root";
 import "./app.css";
 
@@ -39,6 +42,18 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </body>
     </html>
   );
+}
+
+export async function loader({ context, request }: Route.LoaderArgs) {
+  const userId = await getUserId(request);
+  if (!userId) return null;
+
+  const [user, games] = await Promise.all([
+    getUserById(context.db, userId),
+    getGamesByUserId(context.db, userId),
+  ]);
+
+  return { user, games };
 }
 
 export default function App() {

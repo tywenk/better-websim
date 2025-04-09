@@ -7,6 +7,13 @@ import { getUserByEmail } from "~/crud/user.server";
 import { createUserSession, getUserId } from "~/lib/session.server";
 import type { Route } from "./+types/_auth.login";
 
+export function meta({}: Route.MetaArgs) {
+  return [
+    { title: "Login to Better Websim" },
+    { name: "description", content: "Login to your account." },
+  ];
+}
+
 export async function loader({ request }: Route.LoaderArgs) {
   // Check if the user is already logged in
   const userId = await getUserId(request);
@@ -44,7 +51,7 @@ export async function action({ context, request }: Route.ActionArgs) {
       request,
       userId: user.id.toString(),
       remember: true,
-      redirectUrl: "/home",
+      redirectUrl: "/",
     });
 
     if (!response) {
