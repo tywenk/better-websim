@@ -14,6 +14,7 @@ import {
   useTheme,
 } from "remix-themes";
 
+import { Toaster } from "sonner";
 import { getGamesByUserId } from "~/crud/game.server";
 import { getUserById } from "~/crud/user.server";
 import { getUserId } from "~/lib/session.server";
@@ -67,6 +68,7 @@ function Document({ children }: { children: React.ReactNode }) {
         {children}
         <ScrollRestoration />
         <Scripts />
+        <Toaster />
       </body>
     </html>
   );
