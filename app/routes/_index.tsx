@@ -1,6 +1,9 @@
 import { Outlet, useLoaderData } from "react-router";
+import { AppSidebar } from "~/components/app-sidebar";
 import { SidebarLayout } from "~/components/sidebar-layout";
+import { SidebarInset } from "~/components/ui/sidebar";
 import { getGamesByUserId } from "~/crud/game.server";
+import { useUser } from "~/hooks/loaders";
 import { getUserId } from "~/lib/session.server";
 import type { Route } from "./+types/_index";
 
@@ -20,10 +23,14 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 }
 
 export default function Home() {
+  const user = useUser();
   const { games } = useLoaderData<typeof loader>();
   return (
-    <SidebarLayout games={games}>
-      <Outlet />
+    <SidebarLayout>
+      {user ? <AppSidebar games={games ?? []} /> : null}
+      <SidebarInset className="p-4">
+        <Outlet />
+      </SidebarInset>
     </SidebarLayout>
   );
 }
