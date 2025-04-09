@@ -3,8 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import { useFetcher } from "react-router";
 
 import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
 import { ScrollArea } from "~/components/ui/scroll-area";
+import { Textarea } from "~/components/ui/textarea";
 import type { getGameIterationsByGameId } from "~/crud/game.server";
 import type { Game } from "~/database/schema";
 
@@ -42,22 +42,27 @@ export function IterationsSidebar({
           action={`/game/${game.id}/iteration`}
           className="p-2"
         >
-          <div className="flex gap-2">
-            <Input
+          <div className="flex flex-col gap-2">
+            <Textarea
               id="content"
               name="content"
               placeholder="Add iteration content..."
               required
-              className="flex-1"
+              className="min-h-[100px] resize-none max-h-[200px]"
             />
             <Button
               type="submit"
-              size="icon"
               disabled={iterationFetcher.state === "submitting"}
-              className="shrink-0"
+              className="w-full"
             >
-              <SendIcon className="size-4" />
-              <span className="sr-only">Add iteration</span>
+              {iterationFetcher.state === "submitting" ? (
+                "Adding..."
+              ) : (
+                <>
+                  <SendIcon className="size-4 mr-2" />
+                  Add Iteration
+                </>
+              )}
             </Button>
           </div>
         </iterationFetcher.Form>
@@ -85,9 +90,9 @@ export function IterationsSidebar({
                   <span className="sr-only">Copy content</span>
                 </Button>
               </div>
-              <p className="break-words overflow-hidden line-clamp-3 max-w-full font-mono text-xs">
+              <pre className="break-words overflow-hidden line-clamp-3 max-w-full font-mono text-xs whitespace-pre-wrap">
                 {iteration.content}
-              </p>
+              </pre>
             </li>
           ))}
         </ul>
