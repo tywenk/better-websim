@@ -2,6 +2,7 @@ import { PlusIcon } from "lucide-react";
 import * as React from "react";
 import { Form, href } from "react-router";
 
+import { NavFriends } from "~/components/nav-friends";
 import { NavGames } from "~/components/nav-games";
 import { NavUser } from "~/components/nav-user";
 import {
@@ -45,6 +46,7 @@ export function AppSidebar({
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
+        {user ? <NavFriends /> : null}
         <NavGames games={games} />
       </SidebarContent>
       <SidebarFooter className="flex flex-col gap-2">
