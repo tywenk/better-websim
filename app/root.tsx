@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import {
   isRouteErrorResponse,
   Links,
@@ -5,11 +6,18 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
 } from "react-router";
+import {
+  PreventFlashOnWrongTheme,
+  ThemeProvider,
+  useTheme,
+} from "remix-themes";
 
 import { getGamesByUserId } from "~/crud/game.server";
 import { getUserById } from "~/crud/user.server";
 import { getUserId } from "~/lib/session.server";
+import { themeSessionResolver } from "~/lib/theme.server";
 import type { Route } from "./+types/root";
 import "./app.css";
 
@@ -26,13 +34,33 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 
-export function Layout({ children }: { children: React.ReactNode }) {
+export async function loader({ context, request }: Route.LoaderArgs) {
+  const [userId, { getTheme }] = await Promise.all([
+    getUserId(request),
+    themeSessionResolver(request),
+  ]);
+
+  if (!userId) return { theme: getTheme() };
+
+  const [user, games] = await Promise.all([
+    getUserById(context.db, userId),
+    getGamesByUserId(context.db, userId),
+  ]);
+
+  return { user, games, theme: getTheme() };
+}
+
+function Document({ children }: { children: React.ReactNode }) {
+  const [theme] = useTheme();
+  const data = useLoaderData<typeof loader>();
+
   return (
-    <html lang="en">
+    <html lang="en" className={clsx(theme)}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
+        <PreventFlashOnWrongTheme ssrTheme={Boolean(data.theme)} />
         <Links />
       </head>
       <body>
@@ -44,20 +72,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-export async function loader({ context, request }: Route.LoaderArgs) {
-  const userId = await getUserId(request);
-  if (!userId) return null;
-
-  const [user, games] = await Promise.all([
-    getUserById(context.db, userId),
-    getGamesByUserId(context.db, userId),
-  ]);
-
-  return { user, games };
-}
-
 export default function App() {
-  return <Outlet />;
+  const data = useLoaderData<typeof loader>();
+  return (
+    <ThemeProvider specifiedTheme={data.theme} themeAction="/set-theme">
+      <Document>
+        <Outlet />
+      </Document>
+    </ThemeProvider>
+  );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

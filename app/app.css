@@ -132,3 +132,8 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+.dark,
+:root[class~="dark"] {
+  color-scheme: dark;
+}
