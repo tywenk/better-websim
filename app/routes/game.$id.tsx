@@ -75,13 +75,15 @@ export default function GamePage() {
           <Tabs defaultValue="comments">
             <div className="p-2">
               <TabsList className="w-full">
-                <TabsTrigger value="comments">Comments</TabsTrigger>
+                <TabsTrigger value="comments">
+                  Comments ({comments.length})
+                </TabsTrigger>
                 <TabsTrigger
                   disabled={!isOwner}
                   value="iterations"
                   className="flex-1"
                 >
-                  Iterations
+                  Iterations ({iterations.length})
                 </TabsTrigger>
               </TabsList>
             </div>
