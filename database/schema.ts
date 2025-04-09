@@ -57,10 +57,44 @@ export const commentTable = sqliteTable("comment", {
     .$onUpdate(() => sql`(CURRENT_TIMESTAMP)`),
 });
 
+export const friendshipTable = sqliteTable("friendship", {
+  id: integer().primaryKey({ autoIncrement: true }),
+  user_id: integer()
+    .notNull()
+    .references(() => userTable.id),
+  friend_id: integer()
+    .notNull()
+    .references(() => userTable.id),
+  created_at: text("created_at")
+    .notNull()
+    .default(sql`(CURRENT_TIMESTAMP)`),
+});
+
+export const pendingFriendshipTable = sqliteTable("pending_friendship", {
+  id: integer().primaryKey({ autoIncrement: true }),
+  sender_id: integer()
+    .notNull()
+    .references(() => userTable.id),
+  receiver_id: integer()
+    .notNull()
+    .references(() => userTable.id),
+  created_at: text("created_at")
+    .notNull()
+    .default(sql`(CURRENT_TIMESTAMP)`),
+});
+
 // Define relationships
 export const userRelations = relations(userTable, ({ many }) => ({
   games: many(gameTable),
   comments: many(commentTable),
+  friends: many(friendshipTable, { relationName: "userFriends" }),
+  friendOf: many(friendshipTable, { relationName: "friendOfUser" }),
+  sentFriendRequests: many(pendingFriendshipTable, {
+    relationName: "friendRequestSender",
+  }),
+  receivedFriendRequests: many(pendingFriendshipTable, {
+    relationName: "friendRequestReceiver",
+  }),
 }));
 
 export const gameRelations = relations(gameTable, ({ one, many }) => ({
@@ -92,6 +126,35 @@ export const commentRelations = relations(commentTable, ({ one }) => ({
     references: [userTable.id],
   }),
 }));
+
+export const friendshipRelations = relations(friendshipTable, ({ one }) => ({
+  user: one(userTable, {
+    fields: [friendshipTable.user_id],
+    references: [userTable.id],
+    relationName: "userFriends",
+  }),
+  friend: one(userTable, {
+    fields: [friendshipTable.friend_id],
+    references: [userTable.id],
+    relationName: "friendOfUser",
+  }),
+}));
+
+export const pendingFriendshipRelations = relations(
+  pendingFriendshipTable,
+  ({ one }) => ({
+    sender: one(userTable, {
+      fields: [pendingFriendshipTable.sender_id],
+      references: [userTable.id],
+      relationName: "friendRequestSender",
+    }),
+    receiver: one(userTable, {
+      fields: [pendingFriendshipTable.receiver_id],
+      references: [userTable.id],
+      relationName: "friendRequestReceiver",
+    }),
+  })
+);
 
 export type User = Omit<typeof userTable.$inferSelect, "password_hash">;
 export type CreateUser = typeof userTable.$inferInsert;
