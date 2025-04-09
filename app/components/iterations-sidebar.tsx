@@ -1,4 +1,4 @@
-import { SendIcon } from "lucide-react";
+import { CopyIcon, SendIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useFetcher } from "react-router";
 
@@ -63,18 +63,31 @@ export function IterationsSidebar({
         </iterationFetcher.Form>
       </div>
       <ScrollArea>
-        <ul className="p-2 flex flex-col gap-2">
+        <ul className="p-2 flex flex-col gap-2 max-w-full">
           {sortedIterations.map((iteration) => (
             <li
               key={iteration.id}
-              className="border rounded-md p-2 flex flex-col gap-1.5"
+              className="border rounded-md p-2 max-w-full flex flex-col gap-1.5 overflow-x-hidden"
             >
               <div className="flex justify-between items-center">
                 <p className="text-xs text-muted-foreground">
                   {new Date(iteration.created_at).toLocaleString()}
                 </p>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-6"
+                  onClick={() => {
+                    navigator.clipboard.writeText(iteration.content);
+                  }}
+                >
+                  <CopyIcon className="size-3" />
+                  <span className="sr-only">Copy content</span>
+                </Button>
               </div>
-              <p className="text-sm">{iteration.content}</p>
+              <p className="break-words overflow-hidden line-clamp-3 max-w-full font-mono text-xs">
+                {iteration.content}
+              </p>
             </li>
           ))}
         </ul>

@@ -1,4 +1,4 @@
-import { eq, sql } from "drizzle-orm";
+import { asc, desc, eq, sql } from "drizzle-orm";
 import type { AppLoadContext } from "react-router";
 import {
   gameIterationTable,
@@ -9,6 +9,13 @@ import {
   type Game,
   type GameIteration,
 } from "../../database/schema";
+
+// Sort options type for game iterations
+export type GameIterationQueryOptions = {
+  sortBy: "id" | "game_id" | "created_at" | "updated_at" | "content";
+  direction: "asc" | "desc";
+  limit?: number;
+};
 
 // Game CRUD operations
 export async function createGame(db: AppLoadContext["db"], data: CreateGame) {
@@ -67,7 +74,8 @@ export async function getGames(db: AppLoadContext["db"], search?: string) {
       search
         ? sql`LOWER(${gameTable.name}) LIKE LOWER(${"%" + search + "%"})`
         : undefined
-    );
+    )
+    .orderBy(desc(gameTable.created_at));
 
   return games;
 }
@@ -182,13 +190,21 @@ export async function getGameIteration(
 
 export async function getGameIterationsByGameId(
   db: AppLoadContext["db"],
-  gameId: number
+  gameId: number,
+  query?: GameIterationQueryOptions
 ): Promise<GameIteration[]> {
   return db
     .select()
     .from(gameIterationTable)
     .where(eq(gameIterationTable.game_id, gameId))
-    .orderBy(gameIterationTable.created_at);
+    .orderBy(
+      query
+        ? query.direction === "desc"
+          ? desc(gameIterationTable[query.sortBy])
+          : asc(gameIterationTable[query.sortBy])
+        : desc(gameIterationTable.created_at)
+    )
+    .limit(query?.limit ?? Number.MAX_SAFE_INTEGER);
 }
 
 export async function updateGameIteration(
