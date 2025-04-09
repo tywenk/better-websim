@@ -1,5 +1,4 @@
 import { createCookieSessionStorage, redirect } from "react-router";
-import type { User } from "~/database/schema";
 
 export const sessionStorage = createCookieSessionStorage({
   cookie: {
@@ -29,12 +28,10 @@ export async function logout(request: Request) {
 
 const USER_SESSION_KEY = "userId";
 
-export async function getUserId(
-  request: Request
-): Promise<User["id"] | undefined> {
+export async function getUserId(request: Request) {
   const session = await getUserSession(request);
   const userId = session.get(USER_SESSION_KEY);
-  return userId;
+  return userId ? Number(userId) : undefined;
 }
 
 export async function createUserSession({

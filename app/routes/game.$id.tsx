@@ -23,9 +23,7 @@ export default function Game({ loaderData }: Route.ComponentProps) {
   const { game, comments } = loaderData;
   return (
     <SidebarLayout>
-      {user ? (
-        <CommentsSidebar comments={comments ?? []} gameId={game.id} />
-      ) : null}
+      {user ? <CommentsSidebar comments={comments ?? []} game={game} /> : null}
       <SidebarInset className="p-4">
         <Outlet />
       </SidebarInset>

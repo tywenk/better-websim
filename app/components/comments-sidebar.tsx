@@ -1,10 +1,13 @@
 import * as React from "react";
+import { useEffect, useRef, useState } from "react";
 import { href, useFetcher } from "react-router";
+import { EditableText } from "~/components/EditableText";
 
 import { NavUser } from "~/components/nav-user";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
+import { Separator } from "~/components/ui/separator";
 import {
   Sidebar,
   SidebarContent,
@@ -12,28 +15,37 @@ import {
   SidebarHeader,
 } from "~/components/ui/sidebar";
 import type { getCommentsByGameId } from "~/crud/comment.server";
+import type { Game } from "~/database/schema";
 import { useUser } from "~/hooks/loaders";
 
 export function CommentsSidebar({
   comments: initialComments,
-  gameId,
+  game,
   ...props
 }: React.ComponentProps<typeof Sidebar> & {
   comments: Awaited<ReturnType<typeof getCommentsByGameId>>;
-  gameId: number;
+  game: Game;
 }) {
   const user = useUser();
-  const fetcher = useFetcher();
-  const [comments, setComments] = React.useState(initialComments);
-  const formRef = React.useRef<HTMLFormElement>(null);
+  const commentFetcher = useFetcher({ key: "comment" });
+  const [comments, setComments] = useState(initialComments);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  const nameFetcher = useFetcher({ key: "name" });
+  const [optimisticName, setOptimisticName] = React.useState(game.name);
+
+  // Update optimistic name when game prop changes
+  useEffect(() => {
+    setOptimisticName(game.name);
+  }, [game.name]);
 
   // Update comments when the fetcher returns new data
-  React.useEffect(() => {
-    if (fetcher.data?.comment) {
-      setComments((prev) => [...prev, fetcher.data.comment]);
+  useEffect(() => {
+    if (commentFetcher.data?.comment) {
+      setComments((prev) => [...prev, commentFetcher.data.comment]);
       formRef.current?.reset();
     }
-  }, [fetcher.data]);
+  }, [commentFetcher.data]);
 
   return (
     <Sidebar
@@ -41,14 +53,27 @@ export function CommentsSidebar({
       {...props}
     >
       <SidebarHeader>
-        <h2 className="text-lg font-bold">Comments</h2>
+        <EditableText
+          value={optimisticName}
+          onSubmit={(name) => {
+            setOptimisticName(name);
+            nameFetcher.submit(
+              { name },
+              {
+                method: "post",
+                action: href("/game/:id/update", { id: String(game.id) }),
+              }
+            );
+          }}
+        />
       </SidebarHeader>
+      <Separator className="mb-4" />
       <SidebarContent>
         {user && (
-          <fetcher.Form
+          <commentFetcher.Form
             ref={formRef}
             method="post"
-            action={href("/game/:id/comment", { id: String(gameId) })}
+            action={href("/game/:id/comment", { id: String(game.id) })}
             className="mb-4"
           >
             <div className="flex flex-col gap-2">
@@ -62,12 +87,14 @@ export function CommentsSidebar({
               <Button
                 type="submit"
                 className="w-full"
-                disabled={fetcher.state === "submitting"}
+                disabled={commentFetcher.state === "submitting"}
               >
-                {fetcher.state === "submitting" ? "Posting..." : "Post Comment"}
+                {commentFetcher.state === "submitting"
+                  ? "Posting..."
+                  : "Post Comment"}
               </Button>
             </div>
-          </fetcher.Form>
+          </commentFetcher.Form>
         )}
         <ul className="space-y-4">
           {comments.map((comment) => (
