@@ -28,6 +28,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 
   const games = await getGamesByUserId(context.db, userId);
   const allGames = await getGames(context.db);
+
   return { games, allGames };
 }
 
@@ -49,8 +50,8 @@ export default function Home() {
                 <CardHeader>
                   <CardTitle>{game.name}</CardTitle>
                   <CardDescription>
-                    Last updated{" "}
-                    {formatDistanceToNow(new Date(game.updated_at))} ago
+                    By{" "}
+                    <span className="font-semibold">{game.creator.name}</span>
                   </CardDescription>
                 </CardHeader>
                 <CardContent>

@@ -3,6 +3,7 @@ import type { AppLoadContext } from "react-router";
 import {
   gameIterationTable,
   gameTable,
+  userTable,
   type CreateGame,
   type CreateGameIteration,
   type Game,
@@ -10,10 +11,7 @@ import {
 } from "../../database/schema";
 
 // Game CRUD operations
-export async function createGame(
-  db: AppLoadContext["db"],
-  data: CreateGame
-): Promise<Game> {
+export async function createGame(db: AppLoadContext["db"], data: CreateGame) {
   const [game] = await db.insert(gameTable).values(data).returning({
     id: gameTable.id,
     name: gameTable.name,
@@ -24,10 +22,7 @@ export async function createGame(
   return game;
 }
 
-export async function getGame(
-  db: AppLoadContext["db"],
-  id: number
-): Promise<Game | null> {
+export async function getGame(db: AppLoadContext["db"], id: number) {
   const [game] = await db
     .select({
       id: gameTable.id,
@@ -35,8 +30,13 @@ export async function getGame(
       creator_id: gameTable.creator_id,
       created_at: gameTable.created_at,
       updated_at: gameTable.updated_at,
+      creator: {
+        id: userTable.id,
+        name: userTable.name,
+      },
     })
     .from(gameTable)
+    .innerJoin(userTable, eq(gameTable.creator_id, userTable.id))
     .where(eq(gameTable.id, id))
     .limit(1);
 
@@ -45,15 +45,7 @@ export async function getGame(
   return game;
 }
 
-export async function getGames(db: AppLoadContext["db"]): Promise<Game[]> {
-  const games = await db.select().from(gameTable);
-  return games;
-}
-
-export async function getGamesByUserId(
-  db: AppLoadContext["db"],
-  userId: number
-): Promise<Game[]> {
+export async function getGames(db: AppLoadContext["db"]) {
   const games = await db
     .select({
       id: gameTable.id,
@@ -61,8 +53,35 @@ export async function getGamesByUserId(
       creator_id: gameTable.creator_id,
       created_at: gameTable.created_at,
       updated_at: gameTable.updated_at,
+      creator: {
+        id: userTable.id,
+        name: userTable.name,
+      },
     })
     .from(gameTable)
+    .innerJoin(userTable, eq(gameTable.creator_id, userTable.id));
+
+  return games;
+}
+
+export async function getGamesByUserId(
+  db: AppLoadContext["db"],
+  userId: number
+) {
+  const games = await db
+    .select({
+      id: gameTable.id,
+      name: gameTable.name,
+      creator_id: gameTable.creator_id,
+      created_at: gameTable.created_at,
+      updated_at: gameTable.updated_at,
+      creator: {
+        id: userTable.id,
+        name: userTable.name,
+      },
+    })
+    .from(gameTable)
+    .innerJoin(userTable, eq(gameTable.creator_id, userTable.id))
     .where(eq(gameTable.creator_id, userId));
 
   return games;

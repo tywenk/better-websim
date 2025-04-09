@@ -25,7 +25,7 @@ export function NavGames({ games }: { games: Game[] }) {
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-      <SidebarGroupLabel>Games</SidebarGroupLabel>
+      <SidebarGroupLabel>My games</SidebarGroupLabel>
       <SidebarMenu>
         {games.map((game) => (
           <SidebarMenuItem key={game.name}>
