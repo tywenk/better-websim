@@ -5,6 +5,7 @@ type EditableTextProps = {
   onSubmit: (newValue: string) => void;
   className?: string;
   inputClassName?: string;
+  isEditable?: boolean;
 };
 
 export function EditableText({
@@ -12,6 +13,7 @@ export function EditableText({
   onSubmit,
   className = "",
   inputClassName = "",
+  isEditable = true,
 }: EditableTextProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(value);
@@ -66,8 +68,10 @@ export function EditableText({
 
   return (
     <span
-      onClick={() => setIsEditing(true)}
-      className={`cursor-pointer hover:bg-accent/50 px-2 py-1 rounded ${className}`}
+      onClick={() => isEditable && setIsEditing(true)}
+      className={`${
+        isEditable ? "cursor-pointer hover:bg-accent/50" : ""
+      } px-2 py-1 rounded ${className}`}
     >
       {value}
     </span>
