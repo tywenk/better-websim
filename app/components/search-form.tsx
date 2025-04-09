@@ -11,17 +11,15 @@ export function SearchForm({
   ...props
 }: React.ComponentProps<"div">) {
   const [search, setSearch] = useSearchParams();
-  const [debouncedSearch, setDebouncedSearch] = useState(
-    search.get("query") ?? ""
-  );
+  const [debouncedSearch, setDebouncedSearch] = useState(search.get("q") ?? "");
 
   useEffect(() => {
     const timeout = setTimeout(() => {
       if (debouncedSearch) {
-        setSearch({ query: debouncedSearch }, { replace: true });
+        setSearch({ q: debouncedSearch }, { replace: true });
       } else {
         // Remove the query parameter if search is empty
-        search.delete("query");
+        search.delete("q");
         setSearch(search, { replace: true });
       }
     }, 300);

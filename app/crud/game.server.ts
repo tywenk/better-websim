@@ -47,7 +47,7 @@ export async function getGame(db: AppLoadContext["db"], id: number) {
   return game;
 }
 
-export async function getGames(db: AppLoadContext["db"]) {
+export async function getGames(db: AppLoadContext["db"], search?: string) {
   const games = await db
     .select({
       id: gameTable.id,
@@ -62,7 +62,12 @@ export async function getGames(db: AppLoadContext["db"]) {
       },
     })
     .from(gameTable)
-    .innerJoin(userTable, eq(gameTable.creator_id, userTable.id));
+    .innerJoin(userTable, eq(gameTable.creator_id, userTable.id))
+    .where(
+      search
+        ? sql`LOWER(${gameTable.name}) LIKE LOWER(${"%" + search + "%"})`
+        : undefined
+    );
 
   return games;
 }
