@@ -73,53 +73,57 @@ export async function action({ context, request }: Route.ActionArgs) {
 
 export default function SignUp({ actionData }: Route.ComponentProps) {
   return (
-    <div className="p-8 min-w-3/4 w-96">
-      <h1 className="text-2xl">Sign Up</h1>
-      <Form method="post" className="mt-6">
-        <div className="flex flex-col gap-4">
-          <div className="grid w-full items-center gap-1.5">
-            <Label htmlFor="name">Name</Label>
-            <Input
-              type="text"
-              id="name"
-              name="name"
-              required
-              placeholder="Enter your name"
-            />
-          </div>
-          <div className="grid w-full items-center gap-1.5">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              type="email"
-              id="email"
-              name="email"
-              required
-              placeholder="Enter your email"
-            />
-          </div>
-          <div className="grid w-full items-center gap-1.5">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              type="password"
-              id="password"
-              name="password"
-              required
-              placeholder="Choose a password"
-            />
-          </div>
-          <div className="flex flex-col gap-4 mt-4">
-            <Button type="submit">Sign Up</Button>
-            <Button variant="link" asChild className="text-blue-600">
-              <a href="/login">Already have an account? Login</a>
-            </Button>
-          </div>
-          {actionData?.error ? (
-            <div className="flex flex-row">
-              <p className="text-red-600 mt-4">{actionData?.error}</p>
+    <div className="container flex items-center justify-center py-8">
+      <div className="max-w-prose w-full">
+        <h1 className="scroll-m-20 text-4xl font-bold tracking-tight">
+          Sign Up
+        </h1>
+        <Form method="post" className="mt-6">
+          <div className="flex flex-col gap-4">
+            <div className="grid w-full items-center gap-1.5">
+              <Label htmlFor="name">Name</Label>
+              <Input
+                type="text"
+                id="name"
+                name="name"
+                required
+                placeholder="Enter your name"
+              />
             </div>
-          ) : null}
-        </div>
-      </Form>
+            <div className="grid w-full items-center gap-1.5">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                type="email"
+                id="email"
+                name="email"
+                required
+                placeholder="Enter your email"
+              />
+            </div>
+            <div className="grid w-full items-center gap-1.5">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                type="password"
+                id="password"
+                name="password"
+                required
+                placeholder="Choose a password"
+              />
+            </div>
+            <div className="flex flex-col gap-4 mt-4">
+              <Button type="submit">Sign Up</Button>
+              <Button variant="link" asChild>
+                <a href="/login">Already have an account? Login</a>
+              </Button>
+            </div>
+            {actionData?.error ? (
+              <div className="flex flex-row">
+                <p className="text-destructive mt-4">{actionData?.error}</p>
+              </div>
+            ) : null}
+          </div>
+        </Form>
+      </div>
     </div>
   );
 }

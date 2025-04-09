@@ -10,7 +10,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 
 export default function Auth() {
   return (
-    <div className="flex flex-col items-center justify-center h-screen">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-background">
       <Outlet />
     </div>
   );
