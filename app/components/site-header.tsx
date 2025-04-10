@@ -1,4 +1,4 @@
-import { SidebarIcon } from "lucide-react";
+import { Home, SidebarIcon } from "lucide-react";
 import { href, Link } from "react-router";
 import { ModeToggle } from "~/components/mode-toggle";
 
@@ -10,7 +10,6 @@ import {
 } from "~/components/ui/breadcrumb";
 import { Button } from "~/components/ui/button";
 import { useSidebar } from "~/components/ui/sidebar";
-import { WebsimLogo } from "~/components/websim-logo";
 import type { User } from "~/database/schema";
 
 export function SiteHeader({ user }: { user?: User }) {
@@ -33,7 +32,7 @@ export function SiteHeader({ user }: { user?: User }) {
           <BreadcrumbList>
             <BreadcrumbItem>
               <BreadcrumbLink href="/">
-                <WebsimLogo />
+                <Home />
               </BreadcrumbLink>
             </BreadcrumbItem>
           </BreadcrumbList>

@@ -9,7 +9,7 @@ function createSessionStorage(domain: string) {
       path: "/",
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      domain,
+      domain: process.env.NODE_ENV === "production" ? domain : undefined,
     },
   });
 }
@@ -56,11 +56,13 @@ export async function createUserSession({
   const session = await getUserSession(request);
   session.set(USER_SESSION_KEY, userId);
   const storage = createSessionStorage(env.COOKIE_DOMAIN);
+  const isProduction = process.env.NODE_ENV === "production";
   return redirect(redirectUrl || "/", {
     headers: {
       "Set-Cookie": await storage.commitSession(session, {
+        domain: isProduction ? env.COOKIE_DOMAIN : undefined,
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        secure: isProduction,
         sameSite: "lax",
         maxAge: remember
           ? 60 * 60 * 24 * 7 // 7 days
