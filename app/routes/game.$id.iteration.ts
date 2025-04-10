@@ -59,7 +59,7 @@ export async function action({ context, request, params }: Route.ActionArgs) {
   // Call Anthropic API
   const message = await anthropic.messages.create({
     model: "claude-3-7-sonnet-latest",
-    max_tokens: 1024,
+    max_tokens: 8192,
     messages: [
       {
         role: "user",
