@@ -1,15 +1,15 @@
 workers_dev = true
-name = "better-websim"
+name = "mob-vibe-coding"
 compatibility_date = "2025-03-11"
 compatibility_flags = ["nodejs_compat"]
 main = "./build/server/index.js"
 assets = { directory = "./build/client/" }
 
 [vars]
-VALUE_FROM_CLOUDFLARE = "Hello from Cloudflare"
+VALUE_FROM_CLOUDFLARE = "Hello from Mob Vibe Coding"
 
 [[d1_databases]]
 binding = "DB"
-database_name = "better-websim-db"
-database_id = "a5c1bdc8-33c2-45eb-af7e-7efb0636df2c"
+database_name = "mob-vibe-coding-db"
+database_id = "2e4d0be3-cb47-468e-a3af-fdcb98ed282e"
 migrations_dir = "drizzle"
