@@ -13,3 +13,7 @@ binding = "DB"
 database_name = "mob-vibe-coding-db"
 database_id = "2e4d0be3-cb47-468e-a3af-fdcb98ed282e"
 migrations_dir = "drizzle"
+
+[observability]
+enabled = true
+head_sampling_rate = 1
