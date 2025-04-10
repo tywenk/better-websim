@@ -53,7 +53,7 @@ export default function GamePage({ loaderData }: Route.ComponentProps) {
       <iframe
         srcDoc={loaderData.content}
         className="w-full h-full"
-        sandbox="allow-scripts allow-same-origin"
+        sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-pointer-lock allow-downloads allow-presentation"
         title="Game content"
       />
     </div>
