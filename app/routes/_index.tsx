@@ -157,14 +157,16 @@ export default function Home() {
 
   return (
     <SidebarLayout>
-      <AppSidebar
-        games={games}
-        initialFriends={friendsSchema.parse({
-          friends,
-          pendingReceived,
-          pendingSent,
-        })}
-      />
+      {user ? (
+        <AppSidebar
+          games={games}
+          initialFriends={friendsSchema.parse({
+            friends,
+            pendingReceived,
+            pendingSent,
+          })}
+        />
+      ) : null}
       <SidebarInset>
         <div className="p-4 space-y-6">
           <h2 className="text-sm font-medium text-muted-foreground">

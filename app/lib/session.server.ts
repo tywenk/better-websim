@@ -1,15 +1,20 @@
 import { createCookieSessionStorage, redirect } from "react-router";
 
-export const sessionStorage = createCookieSessionStorage({
-  cookie: {
-    name: "__session",
-    secrets: ["s3cret"],
-    sameSite: "lax",
-    path: "/",
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-  },
-});
+function createSessionStorage(domain: string) {
+  return createCookieSessionStorage({
+    cookie: {
+      name: "__session",
+      secrets: ["s3cret"],
+      sameSite: "lax",
+      path: "/",
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      domain,
+    },
+  });
+}
+
+export const sessionStorage = createSessionStorage("localhost");
 
 export const { commitSession, destroySession } = sessionStorage;
 
@@ -17,11 +22,12 @@ const getUserSession = async (request: Request) => {
   return await sessionStorage.getSession(request.headers.get("Cookie"));
 };
 
-export async function logout(request: Request) {
+export async function logout(request: Request, env: CloudflareEnvironment) {
   const session = await getUserSession(request);
+  const storage = createSessionStorage(env.COOKIE_DOMAIN);
   return redirect("/", {
     headers: {
-      "Set-Cookie": await sessionStorage.destroySession(session),
+      "Set-Cookie": await storage.destroySession(session),
     },
   });
 }
@@ -39,17 +45,20 @@ export async function createUserSession({
   userId,
   remember = true,
   redirectUrl,
+  env,
 }: {
   request: Request;
   userId: string;
   remember: boolean;
   redirectUrl?: string;
+  env: CloudflareEnvironment;
 }) {
   const session = await getUserSession(request);
   session.set(USER_SESSION_KEY, userId);
+  const storage = createSessionStorage(env.COOKIE_DOMAIN);
   return redirect(redirectUrl || "/", {
     headers: {
-      "Set-Cookie": await sessionStorage.commitSession(session, {
+      "Set-Cookie": await storage.commitSession(session, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
