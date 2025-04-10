@@ -6,7 +6,6 @@ import * as schema from "./database/schema";
 declare global {
   interface CloudflareEnvironment extends Env {
     ANTHROPIC_API_KEY: string;
-    COOKIE_DOMAIN: string;
   }
 }
 

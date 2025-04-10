@@ -10,6 +10,7 @@ export default defineConfig(({ isSsrBuild }) => ({
     rollupOptions: isSsrBuild
       ? {
           input: "./workers/app.ts",
+          external: ["cloudflare:workers"],
         }
       : undefined,
   },
@@ -31,6 +32,7 @@ export default defineConfig(({ isSsrBuild }) => ({
     },
   },
   plugins: [
+    // cloudflare({ viteEnvironment: { name: "ssr" } }),
     cloudflareDevProxy({
       getLoadContext,
     }),

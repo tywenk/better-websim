@@ -1,33 +1,49 @@
 import { createCookieSessionStorage, redirect } from "react-router";
 
-function createSessionStorage(domain: string) {
+// Stub for local development
+const localEnv = {
+  SESSION_SECRET: "local-dev-secret",
+  COOKIE_DOMAIN: "localhost",
+};
+
+// Get the environment either from Cloudflare Workers or local stub
+const getEnv = async (): Promise<Cloudflare.Env> => {
+  if (process.env.NODE_ENV === "development") {
+    return localEnv as Cloudflare.Env;
+  }
+  const { env } = await import("cloudflare:workers");
+  return env;
+};
+
+function createSessionStorage(env: Cloudflare.Env) {
+  const isProduction = process.env.NODE_ENV === "production";
   return createCookieSessionStorage({
     cookie: {
       name: "__session",
-      secrets: ["s3cret"],
+      secrets: [env.SESSION_SECRET],
       sameSite: "lax",
       path: "/",
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      domain: process.env.NODE_ENV === "production" ? domain : undefined,
+      secure: isProduction,
+      domain: isProduction ? env.COOKIE_DOMAIN : undefined,
     },
   });
 }
 
-export const sessionStorage = createSessionStorage("localhost");
-
-export const { commitSession, destroySession } = sessionStorage;
+// Initialize session storage asynchronously
+const sessionStoragePromise = getEnv().then((env) => createSessionStorage(env));
 
 const getUserSession = async (request: Request) => {
+  const sessionStorage = await sessionStoragePromise;
   return await sessionStorage.getSession(request.headers.get("Cookie"));
 };
 
-export async function logout(request: Request, env: CloudflareEnvironment) {
+export async function logout(request: Request) {
+  const sessionStorage = await sessionStoragePromise;
   const session = await getUserSession(request);
-  const storage = createSessionStorage(env.COOKIE_DOMAIN);
   return redirect("/", {
     headers: {
-      "Set-Cookie": await storage.destroySession(session),
+      "Set-Cookie": await sessionStorage.destroySession(session),
     },
   });
 }
@@ -43,30 +59,21 @@ export async function getUserId(request: Request) {
 export async function createUserSession({
   request,
   userId,
-  remember = true,
   redirectUrl,
-  env,
+  remember = true,
 }: {
   request: Request;
   userId: string;
-  remember: boolean;
   redirectUrl?: string;
-  env: CloudflareEnvironment;
+  remember?: boolean;
 }) {
+  const sessionStorage = await sessionStoragePromise;
   const session = await getUserSession(request);
   session.set(USER_SESSION_KEY, userId);
-  const storage = createSessionStorage(env.COOKIE_DOMAIN);
-  const isProduction = process.env.NODE_ENV === "production";
   return redirect(redirectUrl || "/", {
     headers: {
-      "Set-Cookie": await storage.commitSession(session, {
-        domain: isProduction ? env.COOKIE_DOMAIN : undefined,
-        httpOnly: true,
-        secure: isProduction,
-        sameSite: "lax",
-        maxAge: remember
-          ? 60 * 60 * 24 * 7 // 7 days
-          : undefined,
+      "Set-Cookie": await sessionStorage.commitSession(session, {
+        maxAge: remember ? 60 * 60 * 24 * 7 : undefined,
       }),
     },
   });

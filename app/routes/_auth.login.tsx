@@ -52,7 +52,6 @@ export async function action({ context, request }: Route.ActionArgs) {
       userId: user.id.toString(),
       remember: true,
       redirectUrl: "/",
-      env: context.cloudflare.env,
     });
 
     if (!response) {
