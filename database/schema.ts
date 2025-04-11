@@ -1,5 +1,5 @@
 import { relations, sql } from "drizzle-orm";
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 // First declare tables without foreign key references
 export const userTable = sqliteTable("user", {
@@ -101,6 +101,27 @@ export const pendingFriendshipTable = sqliteTable("pending_friendship", {
     .default(sql`(CURRENT_TIMESTAMP)`),
 });
 
+export const tokenUsageTable = sqliteTable(
+  "token_usage",
+  {
+    id: integer().primaryKey({ autoIncrement: true }),
+    message_id: text().notNull().unique(),
+    user_id: integer()
+      .notNull()
+      .references(() => userTable.id),
+    game_iteration_id: integer().references(() => gameIterationTable.id, {
+      onDelete: "set null",
+    }),
+    model: text().notNull(),
+    input_tokens: integer().notNull(),
+    output_tokens: integer().notNull(),
+    created_at: text("created_at")
+      .notNull()
+      .default(sql`(CURRENT_TIMESTAMP)`),
+  },
+  (table) => [index("token_usage_user_id_idx").on(table.user_id)]
+);
+
 // Then add foreign key references through relations
 export const userRelations = relations(userTable, ({ one, many }) => ({
   games: many(gameTable),
@@ -114,6 +135,7 @@ export const userRelations = relations(userTable, ({ one, many }) => ({
     relationName: "friendRequestReceiver",
   }),
   gameVisits: many(gameVisitTable),
+  tokenUsage: many(tokenUsageTable),
 }));
 
 export const gameRelations = relations(gameTable, ({ one, many }) => ({
@@ -139,11 +161,12 @@ export const gameVisitRelations = relations(gameVisitTable, ({ one }) => ({
 
 export const gameIterationRelations = relations(
   gameIterationTable,
-  ({ one }) => ({
+  ({ one, many }) => ({
     game: one(gameTable, {
       fields: [gameIterationTable.game_id],
       references: [gameTable.id],
     }),
+    tokenUsage: many(tokenUsageTable),
   })
 );
 
@@ -187,6 +210,17 @@ export const pendingFriendshipRelations = relations(
   })
 );
 
+export const tokenUsageRelations = relations(tokenUsageTable, ({ one }) => ({
+  user: one(userTable, {
+    fields: [tokenUsageTable.user_id],
+    references: [userTable.id],
+  }),
+  gameIteration: one(gameIterationTable, {
+    fields: [tokenUsageTable.game_iteration_id],
+    references: [gameIterationTable.id],
+  }),
+}));
+
 export type User = Omit<typeof userTable.$inferSelect, "password_hash">;
 export type CreateUser = typeof userTable.$inferInsert;
 export type Game = typeof gameTable.$inferSelect;
@@ -197,3 +231,5 @@ export type GameIteration = typeof gameIterationTable.$inferSelect;
 export type CreateGameIteration = typeof gameIterationTable.$inferInsert;
 export type Comment = typeof commentTable.$inferSelect;
 export type CreateComment = typeof commentTable.$inferInsert;
+export type TokenUsage = typeof tokenUsageTable.$inferSelect;
+export type CreateTokenUsage = typeof tokenUsageTable.$inferInsert;
