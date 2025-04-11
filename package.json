@@ -11,7 +11,7 @@
     "db:seed": "wrangler d1 execute mob-vibe-coding-db --local --file=scripts/db/seed.sql",
     "deploy": "npm run build && wrangler deploy",
     "dev": "react-router dev",
-    "start": "wrangler dev",
+    "start": "wrangler dev --env local",
     "typecheck": "wrangler types && react-router typegen && tsc -b"
   },
   "dependencies": {

@@ -9,6 +9,8 @@ assets = { directory = "./build/client/" }
 VALUE_FROM_CLOUDFLARE = "Hello from Mob Vibe Coding"
 COOKIE_DOMAIN = "mob-vibe-coding.tywen-kelly.workers.dev"
 
+[env.local.vars]
+COOKIE_DOMAIN = "localhost"
 
 [[d1_databases]]
 binding = "DB"
