@@ -65,11 +65,11 @@ export async function action({ context, request, params }: Route.ActionArgs) {
         role: "user",
         content: `You are an expert AI coding assistant. Only respond with the code. Do not include any other text. All the code should be returned in a single html string. Do not include code blocks ticks or anything else. Just the code.
 
-        Take into account the following context for the game:
+Take into account the following context for the game:
 
-        ${previousIterationsContext}
+${previousIterationsContext}
 
-        Given the previous context, generate a new iteration for the game based on the following prompt:
+Given the previous context, generate a new iteration for the game based on the following prompt:
 ${prompt}`,
       },
     ],
