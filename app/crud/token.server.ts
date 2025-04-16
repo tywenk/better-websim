@@ -205,3 +205,37 @@ export async function getTokenUsageStats(
     count: result?.count ?? 0,
   };
 }
+
+/**
+ * Gets the token usage for the past week (7 days)
+ * @param db Database connection
+ * @param userId User ID to get token usage for
+ * @returns Object containing total input and output tokens for the past week
+ */
+export async function getRollingWeeklyTokenUsage(
+  db: AppLoadContext["db"],
+  userId: number
+) {
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - 7); // 7 days ago
+
+  const [result] = await db
+    .select({
+      total_input_tokens: sql<number>`SUM(${tokenUsageTable.input_tokens})`,
+      total_output_tokens: sql<number>`SUM(${tokenUsageTable.output_tokens})`,
+      count: sql<number>`COUNT(*)`,
+    })
+    .from(tokenUsageTable)
+    .where(
+      sql`${tokenUsageTable.user_id} = ${userId} AND ${
+        tokenUsageTable.created_at
+      } >= ${cutoffDate.toISOString()}`
+    )
+    .limit(1);
+
+  return {
+    totalInputTokens: result?.total_input_tokens ?? 0,
+    totalOutputTokens: result?.total_output_tokens ?? 0,
+    count: result?.count ?? 0,
+  };
+}

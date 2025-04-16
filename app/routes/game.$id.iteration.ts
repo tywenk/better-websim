@@ -4,6 +4,8 @@ import {
   getGame,
   getGameIterationsByGameId,
 } from "~/crud/game.server";
+import { getRollingWeeklyTokenUsage } from "~/crud/token.server";
+import { MAX_INPUT_TOKENS, MAX_OUTPUT_TOKENS } from "~/lib/constants";
 import { authorize } from "~/lib/session.server";
 import type { Route } from "./+types/game.$id.iteration";
 
@@ -13,6 +15,7 @@ export async function action({ context, request, params }: Route.ActionArgs) {
   const formData = await request.formData();
   const prompt = formData.get("content")?.toString();
   const gameId = Number(params.id);
+  const logs = JSON.parse(formData.get("logs")?.toString() || "[]");
   const game = await getGame(context.db, gameId);
   if (!game) {
     return new Response(JSON.stringify({ error: "Game not found" }), {
@@ -35,11 +38,33 @@ export async function action({ context, request, params }: Route.ActionArgs) {
     });
   }
 
-  // Get the previous 5 iterations
+  // Check if the user has enough tokens
+  const tokenUsage = await getRollingWeeklyTokenUsage(context.db, userId);
+  if (tokenUsage.totalInputTokens >= MAX_INPUT_TOKENS) {
+    return new Response(
+      JSON.stringify({ error: "Insufficient input tokens" }),
+      {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
+
+  if (tokenUsage.totalOutputTokens >= MAX_OUTPUT_TOKENS) {
+    return new Response(
+      JSON.stringify({ error: "Insufficient output tokens" }),
+      {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
+
+  // Get the previous 3 iterations
   const previousIterations = await getGameIterationsByGameId(
     context.db,
     gameId,
-    { sortBy: "created_at", direction: "desc", limit: 5 }
+    { sortBy: "created_at", direction: "desc", limit: 3 }
   );
 
   const previousIterationsContext = previousIterations
@@ -68,6 +93,10 @@ export async function action({ context, request, params }: Route.ActionArgs) {
 Take into account the following context for the game:
 
 ${previousIterationsContext}
+
+Take into account the following logs from most recent iteration:
+
+${logs}
 
 Given the previous context, generate a new iteration for the game based on the following prompt:
 ${prompt}`,

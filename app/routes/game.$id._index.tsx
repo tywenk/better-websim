@@ -3,6 +3,7 @@ import {
   getGameIteration,
   getGameIterationsByGameId,
 } from "~/crud/game.server";
+import { IFRAME_ELEMENT_ID } from "~/lib/constants";
 import type { Route } from "./+types/game.$id._index";
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
@@ -20,7 +21,12 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       throw new Response("Iteration not found", { status: 404 });
     }
 
-    return { content: iter.content, hasIterations: true };
+    return {
+      content: iter.content,
+      hasIterations: true,
+      gameId,
+      iterationId: iterVersion,
+    };
   } else {
     const iter = await getGameIterationsByGameId(context.db, gameId, {
       sortBy: "created_at",
@@ -28,20 +34,32 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       limit: 1,
     });
     if (iter.length === 0) {
-      return { content: undefined, hasIterations: false };
+      return {
+        content: undefined,
+        hasIterations: false,
+        gameId,
+        iterationId: null,
+      };
     }
-    return { content: iter[0].content, hasIterations: true };
+    return {
+      content: iter[0].content,
+      hasIterations: true,
+      gameId,
+      iterationId: iter[0].id,
+    };
   }
 }
 
 export default function GamePage({ loaderData }: Route.ComponentProps) {
-  if (!loaderData.hasIterations) {
+  const { content, hasIterations, gameId, iterationId } = loaderData;
+
+  if (!hasIterations) {
     return (
       <div className="flex-1 flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-semibold mb-4">No iterations yet</h2>
           <p className="text-muted-foreground mb-6">
-            Start iterating to build your game!
+            Start prompting to build your game!
           </p>
         </div>
       </div>
@@ -51,9 +69,10 @@ export default function GamePage({ loaderData }: Route.ComponentProps) {
   return (
     <div className="flex-1">
       <iframe
-        srcDoc={loaderData.content}
+        id={`${gameId}-${iterationId}-${IFRAME_ELEMENT_ID}`}
+        srcDoc={content}
         className="w-full h-full"
-        sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-pointer-lock allow-downloads allow-presentation"
+        sandbox="allow-scripts allow-forms allow-popups allow-modals allow-pointer-lock allow-downloads allow-presentation"
         title="Game content"
       />
     </div>

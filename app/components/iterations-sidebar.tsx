@@ -1,6 +1,6 @@
 import { CopyIcon, EyeIcon, SendIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { useFetcher, useNavigate } from "react-router";
+import { useFetcher, useNavigate, useSearchParams } from "react-router";
 import { toast } from "sonner";
 
 import { Button } from "~/components/ui/button";
@@ -16,6 +16,7 @@ import { Separator } from "~/components/ui/separator";
 import { Textarea } from "~/components/ui/textarea";
 import type { getGameIterationsByGameId } from "~/crud/game.server";
 import type { Game } from "~/database/schema";
+import useIframeLogs from "~/hooks/use-iframe-logs";
 
 function highlightDiff(oldContent: string, newContent: string): string {
   const oldLines = oldContent.split("\n");
@@ -59,6 +60,22 @@ export function IterationsSidebar({
   const formRef = useRef<HTMLFormElement>(null);
   const navigate = useNavigate();
 
+  // Get the current iteration ID from the URL
+  // If no iteration ID is provided, use the first iteration
+  // If no iterations exist, use null
+  const [searchParams] = useSearchParams();
+  const currentIterationId = searchParams.get("v")
+    ? Number(searchParams.get("v"))
+    : iterations.length > 0
+    ? iterations[0]?.id
+    : null;
+
+  // Use the iframe logs hook
+  const logs = useIframeLogs(
+    String(game.id),
+    currentIterationId ? String(currentIterationId) : null
+  );
+
   // Update iterations when the fetcher returns new data
   useEffect(() => {
     if (iterationFetcher.data?.iteration) {
@@ -84,6 +101,7 @@ export function IterationsSidebar({
             className="p-2"
           >
             <div className="flex flex-col gap-2">
+              <input type="hidden" name="logs" value={JSON.stringify(logs)} />
               <Textarea
                 id="content"
                 name="content"
