@@ -10,12 +10,10 @@ function useIframeLogs(gameId?: string | null, iterationId?: string | null) {
       ? `#${gameId}-${iterationId}-${IFRAME_ELEMENT_ID}`
       : null;
 
-  // Reset logs when gameId or iterationId changes
   useEffect(() => {
+    // Reset logs when gameId or iterationId changes
     setLogs([]);
-  }, [gameId, iterationId]);
 
-  useEffect(() => {
     // If we don't have a valid selector, don't set up the listeners
     if (!iframeSelector) {
       return;

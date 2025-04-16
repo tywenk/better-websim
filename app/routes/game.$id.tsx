@@ -25,15 +25,21 @@ import {
   incrementGamePlayCount,
 } from "~/crud/game.server";
 import { getUserId } from "~/lib/session.server";
+import type { Handle } from "~/lib/utils";
 import type { Route } from "./+types/game.$id";
 
+export const handle: Handle<Awaited<ReturnType<typeof loader>>> = {
+  breadcrumb: (match) => {
+    return <h2 className="text-md font-semibold">{match.data.game.name}</h2>;
+  },
+};
 export async function loader({ context, request, params }: Route.LoaderArgs) {
   const userId = await getUserId(request);
   const gameId = Number(params.id);
-  if (isNaN(gameId)) return redirect("/");
+  if (isNaN(gameId)) throw redirect("/");
 
   const game = await incrementGamePlayCount(context.db, gameId);
-  if (!game) return redirect("/");
+  if (!game) throw redirect("/");
 
   // Record game visit if user is logged in
   if (userId) {
