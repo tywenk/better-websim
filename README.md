@@ -1,4 +1,4 @@
-"Better Websim"
+"Mob Vibe Coding"
 
 Recreation of websim from scratch.
 

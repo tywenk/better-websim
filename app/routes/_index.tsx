@@ -76,8 +76,8 @@ function GameCardSkeleton() {
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Better Websim" },
-    { name: "description", content: "Welcome to Better Websim" },
+    { title: "Mob Vibe Coding" },
+    { name: "description", content: "Welcome to Mob Vibe Coding" },
   ];
 }
 

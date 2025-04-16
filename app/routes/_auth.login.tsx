@@ -9,7 +9,7 @@ import type { Route } from "./+types/_auth.login";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Login to Better Websim" },
+    { title: "Login to Mob Vibe Coding" },
     { name: "description", content: "Login to your account." },
   ];
 }

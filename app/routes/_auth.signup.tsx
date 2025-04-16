@@ -8,7 +8,7 @@ import type { Route } from "./+types/_auth.signup";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Sign up for Better Websim" },
+    { title: "Sign up for Mob Vibe Coding" },
     { name: "description", content: "Sign up for an account." },
   ];
 }
